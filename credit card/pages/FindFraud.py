@@ -7,15 +7,28 @@ def display_fraud_detection_form():
 
     transaction_amount = st.number_input("Transaction Amount", min_value=0)
     transaction_country = st.selectbox("Transaction Country", ["US", "Canada", "UK", "Germany", "France", "Other"])
-    transaction_currency = st.selectbox("Transaction Currency", ["AUD", "USD", "CAD", "GBP", "EUR", "Other"])
-    transaction_time = st.text_input("Transaction Time", value="1")
+    if transaction_country == "US":
+         transaction_currency = st.selectbox("USD ", ["USD", "CAD", "EUR", "GBP", "AUD"])
+    elif transaction_country == "Canada":
+         transaction_currency = st.selectbox("CAD ", ["CAD", "USD", "EUR", "GBP", "AUD"])   
+    elif transaction_country == "UK":
+            transaction_currency = st.selectbox("GBP ", ["GBP", "USD", "CAD", "EUR", "AUD"])    
+    elif transaction_country == "Germany":
+            transaction_currency = st.selectbox("EUR ", ["EUR", "USD", "CAD", "GBP", "AUD"])
+    elif transaction_country == "France":
+            transaction_currency = st.selectbox("EUR ", ["EUR", "USD", "CAD", "GBP", "AUD"])
+    else:
+            transaction_currency = st.selectbox("Other ", ["USD", "CAD", "EUR", "GBP", "AUD"])
+    # transaction_currency = st.selectbox("Transaction Currency", ["USD", "CAD", "EUR", "GBP", "AUD"])
+
+    transaction_time = st.text_input("Transaction Time", value="1",min_value=1, max_value=23) 
     transaction_day = st.text_input("Transaction Day", value="Weekday")
     card_issuer = st.selectbox("Card Issuer", ["Visa", "MasterCard", "American Express", "Discover", "Other"])
     card_type = st.selectbox("Card Type", ["Credit", "Debit", "Prepaid"])
     online_purchase = st.radio("Online Purchase", ["Yes", "No"])
     first_purchase = st.radio("First Purchase", ["Yes", "No"])
-    customer_age = st.number_input("Customer Age", min_value=0, max_value=120)
-    account_age = st.number_input("Account Age (in years)", min_value=0)
+    customer_age = st.number_input("Customer Age", min_value=1, max_value=99, value=30)
+    account_age = st.number_input("Account Age (in years)", min_value=1, max_value=100, value=5)
 
     if st.button("Submit"):
         # Prepare the data as a JSON object
@@ -52,7 +65,19 @@ def display_fraud_detection_form():
             )
             # Display the response
             st.text("Response from server:")
-            st.text(result.stdout)
+            # Parse the response JSON
+            try:
+                response_json = json.loads(result.stdout)
+                if response_json and "Probability Fraudulent" in response_json[0]:
+                    probability_fraudulent = response_json[0]["Probability Fraudulent"]
+                    if probability_fraudulent > 0.90:
+                        st.warning(f"High probability of fraud detected: {probability_fraudulent:.2f}")
+                    else:
+                        st.success(f"Transaction seems safe: {probability_fraudulent:.2f}")
+                else:
+                    st.error("Unexpected response format or missing 'Probability Fraudulent' key.")
+            except json.JSONDecodeError:
+                st.error("Failed to parse server response as JSON.")
         except Exception as e:
             st.error(f"An error occurred: {e}")
 
