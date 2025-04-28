@@ -1,4 +1,4 @@
-python==3.12.10
+
 absl-py==2.2.1
 
 appdirs==1.4.4
