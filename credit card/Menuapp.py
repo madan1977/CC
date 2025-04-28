@@ -9,12 +9,21 @@ st.set_page_config(
     page_icon="💳",
     layout="wide",
 )
-
+st.markdown(
+    """
+    <style>
+    [data-testid="stSidebarNav"] {
+        display: none;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
 # Sidebar menu for navigation
 st.sidebar.title("Navigation")
 menu_option = st.sidebar.radio(
     "Go to",
-    options=["Dashboard", "Predict Fraud", "Gen AI Fraud"]
+    options=["Dashboard", "Predict Genuine/Fraud", "Fraud Reason using Gen AI","Sequential Pattern Mining"],
 )
 
 # Initialize session state for monitoring, index tracking, and metrics
@@ -147,7 +156,7 @@ if menu_option == "Dashboard":
         st.write("### Fraudulent Transactions")
         fraudulent_df = df[df["Fraudulent"] == 1]
         # for each row in the dataframe fraudulent_df, display the transaction amount, customer age, account age, online purchase, and first purchase  
-        for index, row in fraudulent_df.head(5).iterrows():
+        for index, row in fraudulent_df.tail(3).iterrows():
         
             st.write(f"**Transaction Amount:** {row['Transaction Amount']}")
             st.write(f"**Customer Age:** {row['Customer Age']}")
@@ -162,7 +171,7 @@ if menu_option == "Dashboard":
             st.write(display_gen_ai_fraud_form())
        #
 
-
+        #st.dataframe(fraudulent_df)
         # Create charts
         st.subheader("Charts")
         st.write("Genuine Transactions vs Transaction Amount and Customer Age, Account Age 0-5 and 6-10")
@@ -204,16 +213,16 @@ if menu_option == "Dashboard":
     # Display the DataFrame with a download button   
    
 # Predict Fraud Page
-elif menu_option == "Predict Fraud":
-    st.title("Predict Fraud")
+elif menu_option == "Predict Genuine/Fraud":
+    st.title("Predict Transaction(G/F)")
     st.write("This page uses the `FindFraud.py` functionality.")
     # Import and call the function from FindFraud.py
     from pages.FindFraud import display_fraud_detection_form
     display_fraud_detection_form()
    
 # Gen AI Fraud Page
-elif menu_option == "Gen AI Fraud":
-    st.title("Gen AI Fraud Detection")
+elif menu_option == "Fraud Reason using Gen AI":
+    st.title("Fraud Reason using Gen AI")
     st.write("This page uses the `creditcardfraudllm1.py` functionality.")
   
     # Set the transaction details variable to None
@@ -222,3 +231,7 @@ elif menu_option == "Gen AI Fraud":
     # Import and call the function from creditcardfraudllm1.py
     from pages.creditcardfraudllm1 import display_gen_ai_fraud_form
     display_gen_ai_fraud_form()
+
+elif menu_option == "Sequential Pattern Mining":
+    st.title("Sequential Pattern Mining")
+    st.write("This feature of using Sequential Pattern Mining using Recurrent Neural Network (RNN) is comming soon...")
