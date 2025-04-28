@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 import time  # for simulating real-time updates
-import plotly.express as px  # for interactive charts
+#import plotly.express as px  # for interactive charts
 
 # Set page configuration
 st.set_page_config(
@@ -171,17 +171,17 @@ if menu_option == "Dashboard":
         genuine_df["Account Age Group"] = genuine_df["Account Age"].apply(
             lambda x: "0-5" if x <= 5 else "6-10" if x <= 10 else "10+"
         )
-        fig1 = px.scatter(
-            genuine_df,
-            x="Customer Age",
-            y="Transaction Amount",
-            color="Account Age Group",
-            title="Genuine Transactions: Transaction Amount vs Customer Age (Account Age Groups)",
-            labels={"x": "Customer Age", "y": "Transaction Amount", "color": "Account Age Group"},
-            size="Transaction Amount",
-            hover_data=["Account Age"]
+        fig1_data = genuine_df.groupby("Account Age Group").agg(
+            {"Transaction Amount": "mean", "Customer Age": "mean"}
+        ).reset_index()
+
+        st.bar_chart(
+            data=fig1_data,
+            x="Account Age Group",
+            y=["Transaction Amount", "Customer Age"],
+            use_container_width=True,
         )
-        st.plotly_chart(fig1, use_container_width=True)
+        
         
 
         # Chart 2: Fraudulent Transactions vs Transaction Amount, Online Purchase, and First Purchase
@@ -189,18 +189,17 @@ if menu_option == "Dashboard":
         fraudulent_df["Purchase Type"] = fraudulent_df.apply(
             lambda row: "Online" if row["Online Purchase"] == 1 else "In-Store", axis=1
         )
-        fig2 = px.scatter(
-            fraudulent_df,
-            x="Transaction Amount",
-            y="Customer Age",
-            color="Purchase Type",
-            symbol="First Purchase",
-            title="Fraudulent Transactions: Transaction Amount vs Customer Age  and First Purchase)",
-            labels={"x": "Transaction Amount", "y": "Customer Age", "color": "Purchase Type", "symbol": "First Purchase"},
-            size="Transaction Amount",
-            hover_data=["Account Age", "First Purchase"]
+        fig2_data = fraudulent_df.groupby("Purchase Type").agg(
+            {"Transaction Amount": "sum", "First Purchase": "sum"}
+        ).reset_index()
+
+        st.bar_chart(
+            data=fig2_data,
+            x="Purchase Type",
+            y=["Transaction Amount", "First Purchase"],
+            use_container_width=True,
         )
-        st.plotly_chart(fig2, use_container_width=True)
+        
     # Display the DataFrame with a download button   
    
 # Predict Fraud Page
