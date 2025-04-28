@@ -165,7 +165,8 @@ if menu_option == "Dashboard":
 
         # Create charts
         st.subheader("Charts")
-
+        st.write("Genuine Transactions vs Transaction Amount and Customer Age, Account Age 0-5 and 6-10")
+        
         # Chart 1: Genuine Transactions vs Transaction Amount and Customer Age, Account Age 0-5 and 6-10
         genuine_df = df[df["Fraudulent"] == 0]
         genuine_df["Account Age Group"] = genuine_df["Account Age"].apply(
@@ -183,7 +184,7 @@ if menu_option == "Dashboard":
         )
         
         
-
+        st.write("Fraudulent Transactions vs Transaction Amount, Online Purchase, and First Purchase")
         # Chart 2: Fraudulent Transactions vs Transaction Amount, Online Purchase, and First Purchase
         fraudulent_df = df[df["Fraudulent"] == 1]
         fraudulent_df["Purchase Type"] = fraudulent_df.apply(
