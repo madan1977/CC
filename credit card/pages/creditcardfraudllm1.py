@@ -25,7 +25,7 @@ def display_gen_ai_fraud_form():
 
     client = OpenAI(api_key='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')
     # Initialize the language model, use text-davinci-003's successor: 'text-davinci-002'"])
-    f1 = open("pages/Fraud_llm", "rb")
+    f1 = open("credit card/pages/Fraud_llm", "rb")
     model = pickle.load(f1)
     os.environ["OPENAI_API_KEY"] = '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'
     # Initialize the language model, use text-davinci-003's successor: 'text-davinci-002'
