@@ -51,7 +51,7 @@ openai==1.76.0
 opt_einsum==3.4.0
 optree==0.14.1
 orjson==3.10.16
-
+plotly_express-0.4.0
 protobuf==3.20.3
 
 pycurl==7.45.2
