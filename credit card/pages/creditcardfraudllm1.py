@@ -76,7 +76,7 @@ def display_gen_ai_fraud_form():
                 #response = st.write("processing new record....") 
                 #st.session_state.messages.append({"role": "assistant", "content": "processing. new record...."})
             
-            transaction_details1 = ""+ "Transaction ID:" + str(st.session_state.transaction_ID ) + "   Amount:"  + str(st.session_state.amount)  + "  Time:" + st.session_state.time  + "   Location:" +st.session_state.location +  "   Previous Transactions: 100" + ""
+            transaction_details1 = ""+ "Transaction ID:" + str(st.session_state.transaction_ID ) + "   Amount:"  + str(st.session_state.amount)  + "  Time:" + str(st.session_state.time)  + "   Location:" +str(st.session_state.location) +  "   Previous Transactions: " +str(st.session_state.previous_Transactions ) + ""
             #response =   st.write(transaction_details1)
             st.session_state.messages.append({"role": "assistant", "content":transaction_details1})
             try:
@@ -123,11 +123,19 @@ def display_gen_ai_fraud_form():
             
             st.write("# Add a New Transaction Details for checking Fraudulent")
             with st.form("new_score", clear_on_submit=False):   
-                transaction_ID= st.text_input("Transaction_ID", key="transaction_ID")
+                transaction_ID= st.text_input("Transaction_ID", key="transaction_ID",min_value=123457, value=123459)
                 amount = st.number_input("Amount", key="amount", step=1, value=1, min_value=1)
-                time= st.text_input("Time", key="time")
-                location= st.text_input("Location", key="location")
-                previous_Transactions= st.text_input("Previous_Transactions", key="previous_transactions")
+                time= st.time_input("Time", key="time", value=pd.Timestamp.now().time())
+                location = st.selectbox(
+                    "Location", 
+                    options=["New York", "London", "Paris", "Dubai", "Mumbai"], 
+                    key="location"
+                )
+                previous_Transactions = st.selectbox(
+                    "Previous_Transactions",
+                    options=["None", "NA", "Yes", "100", "200", "300"],
+                    key="previous_transactions"
+                )
                 st.form_submit_button("Submit", on_click=new_scores)
                 
                 
