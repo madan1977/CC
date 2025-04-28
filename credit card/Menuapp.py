@@ -149,7 +149,7 @@ if menu_option == "Dashboard":
     # Generate report if monitoring is stopped
     if not st.session_state.monitoring:
         st.subheader("Fraud & Genuine Transactions Report & Anaylsis")
-        #st.write("### Genuine Transactions")
+        st.warning("Loading data...Scroll down to see the charts once data is loaded")  # Display as a warning message
         genuine_df = df[df["Fraudulent"] == 0]
         #st.dataframe(genuine_df)
 
@@ -209,7 +209,7 @@ if menu_option == "Dashboard":
             y=["Transaction Amount", "First Purchase"],
             use_container_width=True,
         )
-        
+        st.success("Report Generated Successfully!")
     # Display the DataFrame with a download button   
    
 # Predict Fraud Page
