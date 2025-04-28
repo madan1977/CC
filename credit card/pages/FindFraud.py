@@ -5,7 +5,7 @@ import json
 def display_fraud_detection_form():
     st.title("Fraud Detection Input Form")
 
-    transaction_amount = st.number_input("Transaction Amount", min_value=0)
+    transaction_amount = st.number_input("Transaction Amount", min_value=1, max_value=1000000, value=100)
     transaction_country = st.selectbox("Transaction Country", ["US", "Canada", "UK", "Germany", "France", "Other"])
     if transaction_country == "US":
          transaction_currency = st.selectbox("USD ", ["USD", "CAD", "EUR", "GBP", "AUD"])
@@ -21,7 +21,7 @@ def display_fraud_detection_form():
             transaction_currency = st.selectbox("Other ", ["USD", "CAD", "EUR", "GBP", "AUD"])
     # transaction_currency = st.selectbox("Transaction Currency", ["USD", "CAD", "EUR", "GBP", "AUD"])
 
-    transaction_time = st.text_input("Transaction Time", value="1",min_value=1, max_value=23) 
+    transaction_time = st.number_input("Transaction Time", value=5,min_value=1    , max_value=23) 
     transaction_day = st.text_input("Transaction Day", value="Weekday")
     card_issuer = st.selectbox("Card Issuer", ["Visa", "MasterCard", "American Express", "Discover", "Other"])
     card_type = st.selectbox("Card Type", ["Credit", "Debit", "Prepaid"])
@@ -64,16 +64,18 @@ def display_fraud_detection_form():
                 capture_output=True, text=True
             )
             # Display the response
-            st.text("Response from server:")
+            st.text("Response from Prediction using ML:")
+           # st.text(result.stdout)
             # Parse the response JSON
             try:
                 response_json = json.loads(result.stdout)
-                if response_json and "Probability Fraudulent" in response_json[0]:
-                    probability_fraudulent = response_json[0]["Probability Fraudulent"]
-                    if probability_fraudulent > 0.90:
-                        st.warning(f"High probability of fraud detected: {probability_fraudulent:.2f}")
+                if response_json and "Probability Fraudulent is 0" in response_json[0]:
+                    probability_fraudulent = response_json[0]["Probability Fraudulent is 0"]
+                    #st.text(probability_fraudulent)
+                    if probability_fraudulent > int(probability_fraudulent*100):
+                        st.warning("High probability of fraud detected")
                     else:
-                        st.success(f"Transaction seems safe: {probability_fraudulent:.2f}")
+                        st.success("Transaction seems safe:")
                 else:
                     st.error("Unexpected response format or missing 'Probability Fraudulent' key.")
             except json.JSONDecodeError:
