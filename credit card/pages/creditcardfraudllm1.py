@@ -22,12 +22,15 @@ def display_gen_ai_fraud_form():
     else:
         initialize_session_state()
     
-
-    client = OpenAI(api_key='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')
+    # Use API key without hardcoding it in the code
+    api_key = st.secrets["openai_api_key"]  # Fetch the API key securely from Streamlit secrets
+    client = OpenAI(api_key=api_key)
+    os.environ["OPENAI_API_KEY"] = api_key
+    client = OpenAI(api_key=api_key)
     # Initialize the language model, use text-davinci-003's successor: 'text-davinci-002'"])
     f1 = open("credit card/pages/Fraud_llm", "rb")
     model = pickle.load(f1)
-    os.environ["OPENAI_API_KEY"] = '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'
+    os.environ["OPENAI_API_KEY"] = api_key
     # Initialize the language model, use text-davinci-003's successor: 'text-davinci-002'
     llm = ChatOpenAI(model_name="gpt-3.5-turbo") # Changed the model name to a supported model
     from langchain.chains import LLMChain
