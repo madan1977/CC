@@ -18,6 +18,7 @@ import json
 def display_gen_ai_fraud_form():
     
     if st.session_state.transaction_details2 is  None: 
+        initialize_session_state()
         st.title('Credit Card Fraud Detection!')
     else:
         initialize_session_state()
