@@ -16,7 +16,7 @@ def MISL():
     st.title("🧠 Manual Inference with Auto Self-Learning")
 
     # === CONFIG ===
-    DATA_PATH = r"D:\OneDrive - Acidaes Solutions Pvt Ltd\Documents\Projects\PythonProjects\Learning_Directory\StreamlitCreditCardFraud\data\backend_live_data.csv"
+    DATA_PATH = r"backend_live_data.csv"
     TARGET_COLUMN = "Fraudulent"
     SELF_LEARN_FILE = "data/manual_self_learned.csv"
     MODEL_DIR = "models"
