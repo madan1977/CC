@@ -18,8 +18,8 @@ def MISL():
     # === CONFIG ===
     DATA_PATH = r"credit card/pages/backend_live_data.csv"
     TARGET_COLUMN = "Fraudulent"
-    SELF_LEARN_FILE = "data/manual_self_learned.csv"
-    MODEL_DIR = "models"
+    SELF_LEARN_FILE = "credit card/pages/manual_self_learned.csv"
+    MODEL_DIR = "credit card/pages"
     os.makedirs(MODEL_DIR, exist_ok=True)
 
     # === Load Dataset ===
