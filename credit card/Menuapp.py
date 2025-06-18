@@ -23,7 +23,7 @@ st.markdown(
 st.sidebar.title("Navigation")
 menu_option = st.sidebar.radio(
     "Go to",
-    options=["Dashboard", "Predict Genuine/Fraud", "Fraud Reason using Gen AI","Sequential Pattern Mining"],
+    options=["Dashboard", "Model Testing", "Detection using Agentic AI","Detect Anomaly and Novel Attack Demo"],
 )
 
 # Initialize session state for monitoring, index tracking, and metrics
@@ -213,16 +213,17 @@ if menu_option == "Dashboard":
     # Display the DataFrame with a download button   
    
 # Predict Fraud Page
-elif menu_option == "Predict Genuine/Fraud":
-    st.title("Predict Transaction(G/F)")
-    st.write("This page uses the `FindFraud.py` functionality.")
+elif menu_option == "Model Testing":
+    
     # Import and call the function from FindFraud.py
-    from pages.FindFraud import display_fraud_detection_form
-    display_fraud_detection_form()
+    from pages.Model_Testing import model_testing_app
+    # Call the model testing app function   
+    model_testing_app()
    
+    
 # Gen AI Fraud Page
-elif menu_option == "Fraud Reason using Gen AI":
-    st.title("Fraud Reason using Gen AI")
+elif menu_option == "Detection using Agentic AI":
+    st.title("Detection using Agentic AI")
     st.write("This page uses the `creditcardfraudllm1.py` functionality.")
   
     # Set the transaction details variable to None
@@ -232,6 +233,10 @@ elif menu_option == "Fraud Reason using Gen AI":
     from pages.creditcardfraudllm1 import display_gen_ai_fraud_form
     display_gen_ai_fraud_form()
 
-elif menu_option == "Sequential Pattern Mining":
-    st.title("Sequential Pattern Mining")
-    st.write("This feature of using Sequential Pattern Mining using Recurrent Neural Network (RNN) is comming soon...")
+elif menu_option == "Detect Anomaly and Novel Attack Demo":
+    # Placeholder for the Sequential Pattern Mining page
+    # This is a placeholder for the Sequential Pattern Mining functionality
+    # You can implement the RNN-based sequential pattern mining logic here
+    # For now, we will just display a message indicating that this feature is coming soon
+    from pages.Manual_Inference_SelfLearning import MISL
+    MISL()
