@@ -12,7 +12,7 @@ def MISL():
     from sklearn.preprocessing import LabelEncoder, StandardScaler
     from sklearn.ensemble import RandomForestClassifier
 
-   # st.set_page_config(page_title="🖍️ Manual Inference + Auto Self-Learning", layout="wide")
+  
     st.title("🧠 Manual Inference with Auto Self-Learning")
 
     # === CONFIG ===
