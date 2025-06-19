@@ -52,6 +52,7 @@ def model_testing_app():
             # Load Bi-LSTM model
             #bilstm_model = tf.keras.models.load_model(bilstm_model_file)
             bilstm_model = tf.keras.models.load_model(bilstm_model_file,custom_objects={'AttentionLayer': AttentionLayer})
+            bilstm_model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
             # Reshape X_test for LSTM if needed
             X_bilstm = X_test.values
             if len(X_bilstm.shape) == 2:
