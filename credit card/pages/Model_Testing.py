@@ -101,7 +101,7 @@ def model_testing_app():
         st.subheader("🧠 Bi-LSTM Model Results")
         st.write("Accuracy:", accuracy_score(y_test, y_pred_bilstm))
         st.write("Precision:", precision_score(y_test, y_pred_bilstm, average='weighted',zero_division=0))
-        st.write("Recall:", recall_score(y_test, y_pred_bilstm, average='weighted',zero_division=0)
+        st.write("Recall:", recall_score(y_test, y_pred_bilstm, average='weighted',zero_division=0))
         st.write("F1 Score:", f1_score(y_test, y_pred_bilstm, average='weighted',zero_division=0))
         st.text(classification_report(y_test, y_pred_bilstm))
 
