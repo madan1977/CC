@@ -37,12 +37,12 @@ def model_testing_app():
             #st.success(f"Last column selected as target: **{target_column}**")
 
          
-    #classical_model, clf_acc = train_classical_model(df, target_column)
-    #st.success(f"Classical Model Trained (Accuracy: {clf_acc:.2f})")
+    classical_model, clf_acc = train_classical_model(df, target_column)
+    st.success(f"Classical Model Trained (Accuracy: {clf_acc:.2f})")
 
                
-    #lstm_acc = train_bilstm_model(df, target_column)
-    #st.success(f"Bi-LSTM Model Trained (Accuracy: {lstm_acc:.2f})")
+    lstm_acc = train_bilstm_model(df, target_column)
+    st.success(f"Bi-LSTM Model Trained (Accuracy: {lstm_acc:.2f})")
 
 
     st.markdown("### 📤 Upload Test Dataset (Excel/xlsx)")
@@ -66,37 +66,20 @@ def model_testing_app():
         clf_f1 = f1_score(y_test, y_pred_clf, zero_division=0)
 
         # Load or re-train Bi-LSTM model
-        # lstm_acc = train_bilstm_model(df, target_column)
-        # Train and evaluate Bi-LSTM model
-        lstm_model = train_bilstm_model(df, target_column)
-
-        # Preprocess test data for Bi-LSTM
-        scaler = StandardScaler()
-        X_train = df[feature_columns]
-        scaler.fit(X_train)
+        bilstm_model, scaler, label_encoder = train_bilstm_model(df, target_column, return_model=True)
         X_test_scaled = scaler.transform(X_test)
-
-        # Reshape for LSTM: (samples, timesteps, features)
-        X_test_lstm = X_test_scaled.reshape((X_test_scaled.shape[0], 1, X_test_scaled.shape[1]))
-
-        # Encode target if needed
-        if y_test is not None and y_test.dtype == 'O':
-            le = LabelEncoder()
-            le.fit(df[target_column])
-            y_test_lstm = le.transform(y_test)
+        X_test_reshaped = X_test_scaled.reshape((X_test_scaled.shape[0], 1, X_test_scaled.shape[1]))
+        y_pred_lstm = bilstm_model.predict(X_test_reshaped)
+        y_pred_lstm = (y_pred_lstm > 0.5).astype(int).flatten()
+        if label_encoder is not None:
+            y_test_enc = label_encoder.transform(y_test)
         else:
-            y_test_lstm = y_test
+            y_test_enc = y_test
+        lstm_acc = accuracy_score(y_test_enc, y_pred_lstm)
+        lstm_prec = precision_score(y_test_enc, y_pred_lstm, zero_division=0)
+        lstm_rec = recall_score(y_test_enc, y_pred_lstm, zero_division=0)
+        lstm_f1 = f1_score(y_test_enc, y_pred_lstm, zero_division=0)
 
-        # Predict and calculate metrics
-        y_pred_lstm_prob = lstm_model.predict(X_test_lstm)
-        y_pred_lstm = (y_pred_lstm_prob > 0.5).astype(int).flatten()
-
-        lstm_acc = accuracy_score(y_test_lstm, y_pred_lstm)
-        lstm_prec = precision_score(y_test_lstm, y_pred_lstm, zero_division=0)
-        lstm_rec = recall_score(y_test_lstm, y_pred_lstm, zero_division=0)
-        lstm_f1 = f1_score(y_test_lstm, y_pred_lstm, zero_division=0)
-        # Preprocessing for Bi-LSTM already done, use test data directly
-      
         st.markdown("#### 📊 Model Performance on Test Data")
         st.write("**Classical Model:**")
         st.write(f"Accuracy: {clf_acc:.2f}")
