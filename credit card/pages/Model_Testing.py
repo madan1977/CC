@@ -37,11 +37,11 @@ def model_testing_app():
             #st.success(f"Last column selected as target: **{target_column}**")
 
          
-    clf_acc = train_classical_model(df, target_column)
+    clf_acc = train_classical_model(df, target_column, return_model=True)
     st.success(f"Classical Model Trained (Accuracy: {clf_acc:.2f})")
 
-               
-    lstm_acc = train_bilstm_model(df, target_column)
+
+    lstm_acc = train_bilstm_model(df, target_column, return_model=True)
     st.success(f"Bi-LSTM Model Trained (Accuracy: {lstm_acc:.2f})")
 
 
