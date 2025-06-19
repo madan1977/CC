@@ -58,8 +58,9 @@ def model_testing_app():
 
         # Load or re-train classical model
         
-        classical_model = train_classical_model(df, target_column)
-        y_pred_clf = classical_model.predict(X_test)
+       # classical_model = train_classical_model(df, target_column)
+
+        y_pred_clf = clf_acc.predict(X_test)
         clf_acc = accuracy_score(y_test, y_pred_clf)
         clf_prec = precision_score(y_test, y_pred_clf, zero_division=0)
         clf_rec = recall_score(y_test, y_pred_clf, zero_division=0)
