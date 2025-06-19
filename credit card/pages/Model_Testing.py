@@ -46,8 +46,27 @@ def model_testing_app():
 
     # Split data into features and target, then into train and test sets
     from sklearn.model_selection import train_test_split
+    from sklearn.datasets import make_classification
     X = df.drop(columns=[target_column])
     y = df[target_column]
+    import matplotlib.pyplot as plt
+
+    # Generate imbalanced classification dataset
+    X_gen, y_gen = make_classification(n_samples=1000, n_features=X.shape[1], n_informative=3, n_redundant=1,
+                                    n_clusters_per_class=1, weights=[0.9, 0.1], flip_y=0, random_state=42)
+
+    # Plot the generated dataset (using first two features for visualization)
+    fig, ax = plt.subplots()
+    scatter = ax.scatter(X_gen[:, 0], X_gen[:, 1], c=y_gen, cmap='coolwarm', alpha=0.6)
+    plt.title("Imbalanced Classification Dataset (First 2 Features)")
+    plt.xlabel("Feature 1")
+    plt.ylabel("Feature 2")
+    plt.tight_layout()
+    st.pyplot(fig)
+
+    # Transform the dataset into a DataFrame for further processing
+    X = pd.DataFrame(X_gen, columns=X.columns)
+    y = pd.Series(y_gen, name=target_column)
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
     trad_model_path = "credit card/pages/classical_model.pkl"
