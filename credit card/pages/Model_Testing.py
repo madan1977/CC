@@ -58,7 +58,7 @@ def model_testing_app():
     bilstm_model_file_path = "credit card/pages/bilstm_model.h5"
     if trad_model_file and bilstm_model_file_path:
             # Load traditional model
-            trad_model_file.seek(0)
+            #trad_model_file.seek(0)
             trad_model = pickle.load(trad_model_file)
             # Align columns
             expected_features = trad_model.feature_names_in_
