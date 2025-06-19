@@ -18,12 +18,14 @@ def model_testing_app():
         X_test = test_df.drop(columns=[target_col])
         y_test = test_df[target_col]
 
-        #trad_model_file = "pages/classical_model.pkl" 
+        # Upload traditional model
         trad_model_file = st.file_uploader("Upload Traditional Model (.pkl)", type=["pkl"])
+        # Upload Bi-LSTM model
+        #bilstm_model_file = st.file_uploader("Upload Bi-LSTM Model (.h5)", type=["h5"])
+        #trad_model_file = "pages/classical_model.pkl"
         bilstm_model_file = "credit card/pages/bilstm_model.h5" 
         if trad_model_file and bilstm_model_file:
             # Load traditional model
-            #with open(trad_model_file, "rb") as f:
             trad_model = pickle.load(trad_model_file)
             # Align columns
             expected_features = trad_model.feature_names_in_
@@ -85,8 +87,10 @@ def model_testing_app():
                 X_test = test_df.drop(columns=[target_col])
                 y_test = test_df[target_col]
 
-                
-                #bilstm_model_file = st.file_uploader("Upload Bi-LSTM Model (.h5)", type=["h5"])
+                #trad_model_file = "pages/classical_model.pkl" 
+                trad_model_file = st.file_uploader("Upload Traditional Model (.pkl)", type=["pkl"])
+                bilstm_model_file = "credit card/pages/bilstm_model.h5" 
+                #bilstm_model_file = st.file_uploader("Upload sBi-LSTM Model (.h5)", type=["h5"])
 
                 if trad_model_file and bilstm_model_file:
                     # Load traditional model
