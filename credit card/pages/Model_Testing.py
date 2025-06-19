@@ -5,7 +5,7 @@ def model_testing_app():
     import pickle
     import tensorflow as tf
     from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, classification_report
-
+    from bilstm_model import AttentionLayer # Assuming you have a function to build your Bi-LSTM model
     st.title("Model Testing: Traditional vs Bi-LSTM")
     # Upload test data
     uploaded_file = st.file_uploader("Upload Excel file with test data", type=["xlsx"])
@@ -104,7 +104,7 @@ def model_testing_app():
                     st.text(classification_report(y_test, y_pred_trad))
 
                     # Load Bi-LSTM model
-                    bilstm_model = tf.keras.models.load_model(bilstm_model_file)
+                    bilstm_model = tf.keras.models.load_model(bilstm_model_file,custom_objects={'AttentionLayer': AttentionLayer})
                     # Reshape X_test for LSTM if needed
                     X_bilstm = X_test.values
                     if len(X_bilstm.shape) == 2:
