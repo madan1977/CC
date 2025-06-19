@@ -92,7 +92,7 @@ def model_testing_app():
     history = model.fit(
         X_train, y_train,
         validation_data=(X_test, y_test),
-        epochs=100,
+        epochs=20,
         batch_size=8,
         callbacks=callbacks,
         verbose=1
