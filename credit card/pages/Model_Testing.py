@@ -48,7 +48,7 @@ def model_testing_app():
     from sklearn.model_selection import train_test_split
     X = df.drop(columns=[target_column])
     y = df[target_column]
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.6, random_state=42)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
     trad_model_path = "credit card/pages/classical_model.pkl"
     bilstm_model_path = "credit card/pages/bilstm_model.h5"
