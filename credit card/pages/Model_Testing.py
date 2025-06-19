@@ -57,7 +57,8 @@ def model_testing_app():
         y_test = test_df[target_column] if target_column in test_df.columns else None
 
         # Load or re-train classical model
-        classical_model = train_classical_model(df, target_column, return_model=True)
+        
+        classical_model = train_classical_model(df, target_column)
         y_pred_clf = classical_model.predict(X_test)
         clf_acc = accuracy_score(y_test, y_pred_clf)
         clf_prec = precision_score(y_test, y_pred_clf, zero_division=0)
