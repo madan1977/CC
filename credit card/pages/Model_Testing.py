@@ -59,7 +59,9 @@ def model_testing_app():
     if trad_model_file and bilstm_model_file_path:
             # Load traditional model
             #trad_model_file.seek(0)
-            trad_model = pickle.load(trad_model_file)
+            with open(trad_model_file, "rb") as f:
+                  trad_model = pickle.load(f)
+            #trad_model = pickle.load(trad_model_file)
             # Align columns
             expected_features = trad_model.feature_names_in_
             X_test = X_test.reindex(columns=expected_features, fill_value=0)
