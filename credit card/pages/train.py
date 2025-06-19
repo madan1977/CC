@@ -58,7 +58,7 @@ def train_bilstm_model(df, target_column):
     X_train, X_test, y_train, y_test = train_test_split(X_reshaped, y_cat, test_size=0.2, random_state=42)
 
     model = build_bilstm_model(input_shape=(1, X.shape[1]), output_dim=y_cat.shape[1])
-    model.fit(X_train, y_train, epochs=10, batch_size=32, verbose=1)
+    model.fit(X_train, y_train, epochs=20, batch_size=32, verbose=1)
 
     acc = model.evaluate(X_test, y_test, verbose=1)[1]
 
