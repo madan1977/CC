@@ -27,17 +27,16 @@ def model_testing_app():
         #st.title("🧪 Train Models on Uploaded Dataset")
       
     
-    backend_csv_path = os.path.join(current_dir, "credit card/pages/backend_live_data.csv")
-    if os.path.exists(backend_csv_path):
-        file = open(backend_csv_path, "rb")
+    
+    file = open("credit card/pages/backend_live_data.csv", "rb")
 
     if file:
             df = pd.read_csv(file)
-            st.dataframe(df.head())
+            #st.dataframe(df.head())
 
-            st.markdown("### 🏷️ Target Inference")
+            #st.markdown("### 🏷️ Target Inference")
             target_column = df.columns[-1]
-            st.success(f"Last column selected as target: **{target_column}**")
+            #st.success(f"Last column selected as target: **{target_column}**")
 
             if st.button("🧠 Train Models"):
                 with st.spinner("Training classical model..."):
