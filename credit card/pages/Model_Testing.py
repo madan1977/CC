@@ -50,7 +50,8 @@ def model_testing_app():
             st.text(classification_report(y_test, y_pred_trad))
 
             # Load Bi-LSTM model
-            bilstm_model = tf.keras.models.load_model(bilstm_model_file)
+            #bilstm_model = tf.keras.models.load_model(bilstm_model_file)
+            bilstm_model = tf.keras.models.load_model(bilstm_model_file,custom_objects={'AttentionLayer': AttentionLayer})
             # Reshape X_test for LSTM if needed
             X_bilstm = X_test.values
             if len(X_bilstm.shape) == 2:
