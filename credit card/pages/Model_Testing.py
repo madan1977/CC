@@ -6,6 +6,7 @@ def model_testing_app():
     import tensorflow as tf
     from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, classification_report
     from sklearn.preprocessing import StandardScaler
+    from sklearn.preprocessing import LabelEncoder
     from pages.bilstm_model import AttentionLayer # Assuming you have a function to build your Bi-LSTM model
     st.title("Model Testing: Traditional vs Bi-LSTM")
     # Upload test data
@@ -53,6 +54,28 @@ def model_testing_app():
             # Load Bi-LSTM model
             #bilstm_model = tf.keras.models.load_model(bilstm_model_file)
             # Load Bi-LSTM model with custom AttentionLayer
+            # Preprocessing for Bi-LSTM model
+            # 1. Encode categorical variables if any
+
+            X_bilstm_pre = X_test.copy()
+            for col in X_bilstm_pre.select_dtypes(include=['object', 'category']).columns:
+                le = LabelEncoder()
+                X_bilstm_pre[col] = le.fit_transform(X_bilstm_pre[col].astype(str))
+
+            # 2. Feature scaling (StandardScaler)
+            scaler = StandardScaler()
+            X_bilstm_pre = scaler.fit_transform(X_bilstm_pre)
+
+            # 3. Reshape for LSTM input: (samples, timesteps, features)
+            X_bilstm_pre = X_bilstm_pre.reshape((X_bilstm_pre.shape[0], 1, X_bilstm_pre.shape[1]))
+
+            # 4. Encode y_test if categorical
+            if y_test.dtype == 'object' or y_test.dtype.name == 'category':
+                y_test_enc = LabelEncoder().fit_transform(y_test)
+            else:
+                y_test_enc = y_test
+
+            # 5. Optionally, balance classes if highly imbalanced (not shown here, but consider SMOTE or similar)
             bilstm_model = tf.keras.models.load_model(
                 bilstm_model_file_path, custom_objects={'AttentionLayer': AttentionLayer}
             )
