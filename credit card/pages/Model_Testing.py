@@ -18,12 +18,13 @@ def model_testing_app():
         X_test = test_df.drop(columns=[target_col])
         y_test = test_df[target_col]
 
-        trad_model_file = "credit card/pages/classical_model.pkl" 
+        trad_model_file = "pages/classical_model.pkl" 
                 #trad_model_file = st.file_uploader("Upload Traditional Model (.pkl)", type=["pkl"])
-        bilstm_model_file = "credit card/pages/bilstm_model.h5" 
+        bilstm_model_file = "pages/bilstm_model.h5" 
         if trad_model_file and bilstm_model_file:
             # Load traditional model
-            trad_model = pickle.load(trad_model_file)
+            with open(trad_model_file, "rb") as f:
+                trad_model = pickle.load(f)
             # Align columns
             expected_features = trad_model.feature_names_in_
             X_test = X_test.reindex(columns=expected_features, fill_value=0)
