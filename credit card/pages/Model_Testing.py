@@ -10,7 +10,7 @@ from tensorflow.keras.layers import Embedding, Bidirectional, LSTM, Dense, Dropo
 from tensorflow.keras.callbacks import EarlyStopping, ReduceLROnPlateau
 
 # 1. Load Data
-df = pd.read_csv('backend_live_data.csv')
+df = pd.read_csv('credit card/pages/backend_live_data.csv')
 
 # 2. Preprocess Data (Assuming 'text' and 'label' columns)
 texts = df['text'].astype(str).tolist()
