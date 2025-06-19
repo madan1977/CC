@@ -20,7 +20,7 @@ def model_testing_app():
 
         #trad_model_file = "pages/classical_model.pkl" 
         trad_model_file = st.file_uploader("Upload Traditional Model (.pkl)", type=["pkl"])
-        bilstm_model_file = "credit cardpages/bilstm_model.h5" 
+        bilstm_model_file = "credit card/pages/bilstm_model.h5" 
         if trad_model_file and bilstm_model_file:
             # Load traditional model
             #with open(trad_model_file, "rb") as f:
