@@ -1,107 +1,88 @@
-
 def model_testing_app():
     import streamlit as st
     import pandas as pd
     import pickle
     import tensorflow as tf
     from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, classification_report
-    from sklearn.preprocessing import StandardScaler
     from sklearn.preprocessing import LabelEncoder
-    from pages.bilstm_model import AttentionLayer # Assuming you have a function to build your Bi-LSTM model
+    from pages.bilstm_model import AttentionLayer
+
     st.title("Model Testing: Traditional vs Bi-LSTM")
-    # Upload test data
+
     uploaded_file = st.file_uploader("Upload Excel file with test data", type=["xlsx"])
     if uploaded_file:
         test_df = pd.read_excel(uploaded_file)
         st.write("Test Data Preview:", test_df.head())
 
-        # Select target column
         target_col = st.selectbox("Select target column", test_df.columns)
         X_test = test_df.drop(columns=[target_col])
         y_test = test_df[target_col]
 
-        # Upload traditional model
         trad_model_file = st.file_uploader("Upload Traditional Model (.pkl)", type=["pkl"])
-        # Upload Bi-LSTM model
-        #bilstm_model_file = st.file_uploader("Upload Bi-LSTM Model (.h5)", type=["h5"])
-        #trad_model_file = "pages/classical_model.pkl"
         bilstm_model_file_path = "credit card/pages/bilstm_model.h5"
+        scaler_file = "credit card/pages/scaler_bilstm.pkl"
+        label_encoder_file = "credit card/pages/label_encoder_bilstm.pkl"
+
         if trad_model_file and bilstm_model_file_path:
-            # Load traditional model
             trad_model_file.seek(0)
             trad_model = pickle.load(trad_model_file)
-            # Align columns
             expected_features = trad_model.feature_names_in_
-            X_test = X_test.reindex(columns=expected_features, fill_value=0)
+            X_test_trad = X_test.reindex(columns=expected_features, fill_value=0)
+            X_test_trad = X_test_trad.apply(pd.to_numeric, errors='coerce').fillna(0)
+            assert not X_test_trad.isnull().any().any(), "X_test_trad still contains NaNs!"
+            y_pred_trad = trad_model.predict(X_test_trad)
 
-            # Ensure all columns are numeric
-            X_test = X_test.apply(pd.to_numeric, errors='coerce')
-            #assert not X_test.isnull().any().any(), "X_test contains NaNs after conversion!"
-            # After all preprocessing and before prediction:
-            X_test = X_test.fillna(0)  # or use another strategy if 0 is not appropriate
-
-            # Now the assertion should pass
-            assert not X_test.isnull().any().any(), "X_test still contains NaNs!"
-
-            # Predict
-            y_pred_trad = trad_model.predict(X_test)
             st.subheader("Traditional Model Results")
             st.write("Accuracy:", accuracy_score(y_test, y_pred_trad))
             st.write("Precision:", precision_score(y_test, y_pred_trad, average='weighted'))
             st.write("Recall:", recall_score(y_test, y_pred_trad, average='weighted'))
             st.write("F1 Score:", f1_score(y_test, y_pred_trad, average='weighted'))
             st.text(classification_report(y_test, y_pred_trad))
-            # Load Bi-LSTM model
-            #bilstm_model = tf.keras.models.load_model(bilstm_model_file)
-            # Load Bi-LSTM model with custom AttentionLayer
-            # Preprocessing for Bi-LSTM model
-            # 1. Encode categorical variables if any
 
-            X_bilstm_pre = X_test.copy()
-            for col in X_bilstm_pre.select_dtypes(include=['object', 'category']).columns:
-                le = LabelEncoder()
-                X_bilstm_pre[col] = le.fit_transform(X_bilstm_pre[col].astype(str))
+            # --- Bi-LSTM Section ---
+            # Load scaler and label encoder used during training
+            with open(scaler_file, "rb") as f:
+                scaler = pickle.load(f)
+            with open(label_encoder_file, "rb") as f:
+                label_encoder = pickle.load(f)
 
-            # 2. Feature scaling (StandardScaler)
-            scaler = StandardScaler()
-            X_bilstm_pre = scaler.fit_transform(X_bilstm_pre)
+            # Encode categorical features as during training
+            X_bilstm = X_test.copy()
+            for col in X_bilstm.select_dtypes(include=['object', 'category']).columns:
+                X_bilstm[col] = X_bilstm[col].astype(str)
+                if hasattr(label_encoder, 'classes_'):
+                    # Use loaded label encoder if available
+                    X_bilstm[col] = label_encoder.transform(X_bilstm[col])
+                else:
+                    # Otherwise, fit a new one (not recommended for production)
+                    le = LabelEncoder()
+                    X_bilstm[col] = le.fit_transform(X_bilstm[col])
 
-            # 3. Reshape for LSTM input: (samples, timesteps, features)
-            X_bilstm_pre = X_bilstm_pre.reshape((X_bilstm_pre.shape[0], 1, X_bilstm_pre.shape[1]))
+            # Feature scaling using loaded scaler
+            X_bilstm_scaled = scaler.transform(X_bilstm)
 
-            # 4. Encode y_test if categorical
+            # Reshape for LSTM input: (samples, timesteps, features)
+            X_bilstm_scaled = X_bilstm_scaled.reshape((X_bilstm_scaled.shape[0], 1, X_bilstm_scaled.shape[1]))
+
+            # Encode y_test using loaded label encoder
             if y_test.dtype == 'object' or y_test.dtype.name == 'category':
-                y_test_enc = LabelEncoder().fit_transform(y_test)
+                y_true = label_encoder.transform(y_test.astype(str))
             else:
-                y_test_enc = y_test
+                y_true = y_test.values
 
-            # 5. Optionally, balance classes if highly imbalanced (not shown here, but consider SMOTE or similar)
+            # Load Bi-LSTM model with custom AttentionLayer
             bilstm_model = tf.keras.models.load_model(
                 bilstm_model_file_path, custom_objects={'AttentionLayer': AttentionLayer}
             )
-            bilstm_model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
-            #bilstm_model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
-
-            # Prepare X_test for Bi-LSTM: (samples, timesteps, features)
-            X_bilstm = X_test.values
-            if X_bilstm.ndim == 2:
-                X_bilstm = X_bilstm.reshape((X_bilstm.shape[0], 1, X_bilstm.shape[1]))
-
-            # Optional: Feature scaling for neural network (improves accuracy)
-            scaler = StandardScaler()
-            X_bilstm_scaled = scaler.fit_transform(X_bilstm.reshape(X_bilstm.shape[0], -1))
-            X_bilstm_scaled = X_bilstm_scaled.reshape(X_bilstm.shape)
 
             # Predict with Bi-LSTM model
             y_pred_bilstm_prob = bilstm_model.predict(X_bilstm_scaled)
-            # Convert probabilities to class labels
+            # For multi-class, use argmax; for binary, use threshold
             if y_pred_bilstm_prob.shape[-1] > 1:
                 y_pred_bilstm = y_pred_bilstm_prob.argmax(axis=-1)
             else:
-                y_pred_bilstm = (y_pred_bilstm_prob > 0.5).astype(int).flatten()
-
-            # Align y_test type for metrics
-            y_true = y_test.values if hasattr(y_test, "values") else y_test
+                # Try a lower threshold for higher recall (tune as needed)
+                y_pred_bilstm = (y_pred_bilstm_prob > 0.4).astype(int).flatten()
 
             st.subheader("Bi-LSTM Model Results")
             st.write("Accuracy:", accuracy_score(y_true, y_pred_bilstm))
@@ -123,9 +104,7 @@ def model_testing_app():
             st.write(f"Better Model: **{better}**")
 
             if bilstm_acc < 0.95:
-                st.warning("Bi-LSTM accuracy is below 95%. Consider tuning your model or preprocessing steps for better results.")
+                st.warning("Bi-LSTM accuracy is below 95%. Consider tuning your model, using class weights, or improving preprocessing for better results.")
 
-
-            
 if __name__ == "__main__":
     model_testing_app()
