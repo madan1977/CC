@@ -37,11 +37,11 @@ def model_testing_app():
             #st.success(f"Last column selected as target: **{target_column}**")
 
          
-    clf_acc = train_classical_model(df, target_column)
+    classical_model, clf_acc = train_classical_model(df, target_column)
     st.success(f"Classical Model Trained (Accuracy: {clf_acc:.2f})")
 
 
-    lstm_acc = train_bilstm_model(df, target_column)
+    bilstm_model, lstm_acc, scaler, label_encoder = train_bilstm_model(df, target_column)
     st.success(f"Bi-LSTM Model Trained (Accuracy: {lstm_acc:.2f})")
 
 
@@ -56,18 +56,14 @@ def model_testing_app():
         X_test = test_df[feature_columns]
         y_test = test_df[target_column] if target_column in test_df.columns else None
 
-        # Load or re-train classical model
-        
-        classical_model = train_classical_model(df, target_column)
-
+        # Use the already trained classical model
         y_pred_clf = classical_model.predict(X_test)
         clf_acc = accuracy_score(y_test, y_pred_clf)
         clf_prec = precision_score(y_test, y_pred_clf, zero_division=0)
         clf_rec = recall_score(y_test, y_pred_clf, zero_division=0)
         clf_f1 = f1_score(y_test, y_pred_clf, zero_division=0)
 
-        # Load or re-train Bi-LSTM model
-        bilstm_model, scaler, label_encoder = train_bilstm_model(df, target_column)
+        # Use the already trained Bi-LSTM model
         X_test_scaled = scaler.transform(X_test)
         X_test_reshaped = X_test_scaled.reshape((X_test_scaled.shape[0], 1, X_test_scaled.shape[1]))
         y_pred_lstm = bilstm_model.predict(X_test_reshaped)
