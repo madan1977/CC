@@ -26,6 +26,15 @@ def model_testing_app():
         if trad_model_file and bilstm_model_file:
             # Load traditional model
             trad_model = pickle.load(trad_model_file)
+            # Align columns
+            expected_features = trad_model.feature_names_in_
+            X_test = X_test.reindex(columns=expected_features, fill_value=0)
+
+            # Ensure all columns are numeric
+            X_test = X_test.apply(pd.to_numeric, errors='coerce')
+            assert not X_test.isnull().any().any(), "X_test contains NaNs after conversion!"
+
+            # Predict
             y_pred_trad = trad_model.predict(X_test)
             st.subheader("Traditional Model Results")
             st.write("Accuracy:", accuracy_score(y_test, y_pred_trad))
