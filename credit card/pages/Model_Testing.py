@@ -57,7 +57,7 @@ def model_testing_app():
                 bilstm_model_file_path, custom_objects={'AttentionLayer': AttentionLayer}
             )
             bilstm_model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
-            bilstm_model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+            #bilstm_model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
 
             # Prepare X_test for Bi-LSTM: (samples, timesteps, features)
             X_bilstm = X_test.values
