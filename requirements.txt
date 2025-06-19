@@ -1,3 +1,4 @@
+cudatoolkit==11.8
 openpyxl==3.1.2
 tensorflow==2.18.0
 absl-py==2.2.1
