@@ -28,26 +28,23 @@ def model_testing_app():
       
     
     
-    file = open("credit card/pages/backend_live_data.csv", "rb")
-
-    if file:
-            df = pd.read_csv(file)
+    file = os.path.join(current_dir, "backend_live_data.csv")
+    df = pd.read_csv(file)
             #st.dataframe(df.head())
 
             #st.markdown("### 🏷️ Target Inference")
-            target_column = df.columns[-1]
+    target_column = df.columns[-1]
             #st.success(f"Last column selected as target: **{target_column}**")
 
-            if st.button("🧠 Train Models"):
-                with st.spinner("Training classical model..."):
-                    clf_acc = train_classical_model(df, target_column)
-                    st.success(f"Classical Model Trained (Accuracy: {clf_acc:.2f})")
+         
+    clf_acc = train_classical_model(df, target_column)
+    st.success(f"Classical Model Trained (Accuracy: {clf_acc:.2f})")
 
-                with st.spinner("Training Bi-LSTM model..."):
-                    lstm_acc = train_bilstm_model(df, target_column)
-                    st.success(f"Bi-LSTM Model Trained (Accuracy: {lstm_acc:.2f})")
+               
+    lstm_acc = train_bilstm_model(df, target_column)
+    st.success(f"Bi-LSTM Model Trained (Accuracy: {lstm_acc:.2f})")
 
-                st.balloons()
+
 
     # Upload test data
     uploaded_file = st.file_uploader("Upload Excel file with test data", type=["xlsx"])
