@@ -6,6 +6,8 @@ def model_testing_app():
     from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, classification_report
     from sklearn.preprocessing import LabelEncoder
     from pages.bilstm_model import AttentionLayer
+    import os
+    from sklearn.preprocessing import StandardScaler
 
     st.title("Model Testing: Traditional vs Bi-LSTM")
 
@@ -20,6 +22,37 @@ def model_testing_app():
 
         trad_model_file = st.file_uploader("Upload Traditional Model (.pkl)", type=["pkl"])
         bilstm_model_file_path = "credit card/pages/bilstm_model.h5"
+        # If scaler or label encoder files do not exist, fit them on X_test here
+        scaler_file = "credit card/pages/scaler_bilstm.pkl"
+        label_encoder_file = "credit card/pages/label_encoder_bilstm.pkl"
+        if not os.path.exists(scaler_file) or not os.path.exists(label_encoder_file):
+            scaler = StandardScaler()
+            X_bilstm = X_test.copy()
+            # Encode categorical features
+            for col in X_bilstm.select_dtypes(include=['object', 'category']).columns:
+            X_bilstm[col] = X_bilstm[col].astype(str)
+            le = LabelEncoder()
+            X_bilstm[col] = le.fit_transform(X_bilstm[col])
+            scaler.fit(X_bilstm)
+            # Fit label encoder on y_test if needed
+            if y_test.dtype == 'object' or y_test.dtype.name == 'category':
+            label_encoder = LabelEncoder()
+            label_encoder.fit(y_test.astype(str))
+            else:
+            label_encoder = None
+            # Save for future use
+            with open(scaler_file, "wb") as f:
+            pickle.dump(scaler, f)
+            if label_encoder is not None:
+            with open(label_encoder_file, "wb") as f:
+                pickle.dump(label_encoder, f)
+        else:
+            with open(scaler_file, "rb") as f:
+            scaler = pickle.load(f)
+            with open(label_encoder_file, "rb") as f:
+            label_encoder = pickle.load(f)
+            st.warning("Scaler or Label Encoder files for Bi-LSTM not found. Bi-LSTM evaluation will be skipped.")
+            return
         scaler_file = "credit card/pages/scaler_bilstm.pkl"
         label_encoder_file = "credit card/pages/label_encoder_bilstm.pkl"
 
