@@ -10,7 +10,7 @@ current_dir = os.path.dirname(os.path.abspath(__file__))  # pages/
 parent_dir = os.path.abspath(os.path.join(current_dir, '..'))  # StreamlitCreditCardFraud/
 if parent_dir not in sys.path:
     sys.path.append(parent_dir)
-from utils.bilstm_model import build_bilstm_model
+from pages.bilstm_model import build_bilstm_model
 from tensorflow.keras.utils import to_categorical
 from sklearn.preprocessing import LabelEncoder, StandardScaler
 
@@ -37,7 +37,7 @@ def train_classical_model(df, target_column):
     y_pred = model.predict(X_test)
     acc = accuracy_score(y_test, y_pred)
 
-    with open("credit card/pages/classical_model.pkl", "wb") as f:
+    with open("models/classical_model.pkl", "wb") as f:
         pickle.dump(model, f)
 
     return acc
@@ -62,5 +62,5 @@ def train_bilstm_model(df, target_column):
 
     acc = model.evaluate(X_test, y_test, verbose=1)[1]
 
-    model.save("credit card/pages/bilstm_model.h5")
+    model.save("models/bilstm_model.h5")
     return acc
