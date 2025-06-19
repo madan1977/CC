@@ -5,7 +5,7 @@ def model_testing_app():
     import pickle
     import tensorflow as tf
     from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, classification_report
-    from bilstm_model import AttentionLayer # Assuming you have a function to build your Bi-LSTM model
+    from pages.bilstm_model import AttentionLayer # Assuming you have a function to build your Bi-LSTM model
     st.title("Model Testing: Traditional vs Bi-LSTM")
     # Upload test data
     uploaded_file = st.file_uploader("Upload Excel file with test data", type=["xlsx"])
