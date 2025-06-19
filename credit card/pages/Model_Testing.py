@@ -5,6 +5,7 @@ def model_testing_app():
     import pickle
     import tensorflow as tf
     from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, classification_report
+    from sklearn.preprocessing import StandardScaler
     from pages.bilstm_model import AttentionLayer # Assuming you have a function to build your Bi-LSTM model
     st.title("Model Testing: Traditional vs Bi-LSTM")
     # Upload test data
@@ -51,31 +52,54 @@ def model_testing_app():
 
             # Load Bi-LSTM model
             #bilstm_model = tf.keras.models.load_model(bilstm_model_file)
-            bilstm_model = tf.keras.models.load_model(bilstm_model_file,custom_objects={'AttentionLayer': AttentionLayer})
+            # Load Bi-LSTM model with custom AttentionLayer
+            bilstm_model = tf.keras.models.load_model(
+                bilstm_model_file, custom_objects={'AttentionLayer': AttentionLayer}
+            )
             bilstm_model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
-            # Reshape X_test for LSTM if needed
+
+            # Prepare X_test for Bi-LSTM: (samples, timesteps, features)
             X_bilstm = X_test.values
-            if len(X_bilstm.shape) == 2:
+            if X_bilstm.ndim == 2:
                 X_bilstm = X_bilstm.reshape((X_bilstm.shape[0], 1, X_bilstm.shape[1]))
-            y_pred_bilstm = bilstm_model.predict(X_bilstm)
-            # If output is probabilities, get class labels
-            if y_pred_bilstm.shape[1] == 1:
-                y_pred_bilstm = (y_pred_bilstm > 0.5).astype(int).flatten()
+
+            # Optional: Feature scaling for neural network (improves accuracy)
+            scaler = StandardScaler()
+            X_bilstm_scaled = scaler.fit_transform(X_bilstm.reshape(X_bilstm.shape[0], -1))
+            X_bilstm_scaled = X_bilstm_scaled.reshape(X_bilstm.shape)
+
+            # Predict with Bi-LSTM model
+            y_pred_bilstm_prob = bilstm_model.predict(X_bilstm_scaled)
+            # Convert probabilities to class labels
+            if y_pred_bilstm_prob.shape[-1] > 1:
+                y_pred_bilstm = y_pred_bilstm_prob.argmax(axis=-1)
             else:
-                y_pred_bilstm = y_pred_bilstm.argmax(axis=1)
+                y_pred_bilstm = (y_pred_bilstm_prob > 0.5).astype(int).flatten()
+
+            # Align y_test type for metrics
+            y_true = y_test.values if hasattr(y_test, "values") else y_test
+
             st.subheader("Bi-LSTM Model Results")
-            st.write("Accuracy:", accuracy_score(y_test, y_pred_bilstm))
-            st.write("Precision:", precision_score(y_test, y_pred_bilstm, average='weighted'))
-            st.write("Recall:", recall_score(y_test, y_pred_bilstm, average='weighted'))
-            st.write("F1 Score:", f1_score(y_test, y_pred_bilstm, average='weighted'))
-            st.text(classification_report(y_test, y_pred_bilstm))
+            st.write("Accuracy:", accuracy_score(y_true, y_pred_bilstm))
+            st.write("Precision:", precision_score(y_true, y_pred_bilstm, average='weighted'))
+            st.write("Recall:", recall_score(y_true, y_pred_bilstm, average='weighted'))
+            st.write("F1 Score:", f1_score(y_true, y_pred_bilstm, average='weighted'))
+            st.text(classification_report(y_true, y_pred_bilstm))
 
             # Compare models
             st.subheader("Model Comparison")
-            trad_acc = accuracy_score(y_test, y_pred_trad)
-            bilstm_acc = accuracy_score(y_test, y_pred_bilstm)
-            better = "Traditional Model" if trad_acc > bilstm_acc else "Bi-LSTM Model"
+            trad_acc = accuracy_score(y_true, y_pred_trad)
+            bilstm_acc = accuracy_score(y_true, y_pred_bilstm)
+            if trad_acc > bilstm_acc:
+                better = "Traditional Model"
+            elif bilstm_acc > trad_acc:
+                better = "Bi-LSTM Model"
+            else:
+                better = "Both models perform equally"
             st.write(f"Better Model: **{better}**")
+
+            if bilstm_acc < 0.95:
+                st.warning("Bi-LSTM accuracy is below 95%. Consider tuning your model or preprocessing steps for better results.")
 
 
             
