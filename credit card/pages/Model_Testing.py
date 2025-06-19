@@ -41,7 +41,7 @@ def model_testing_app():
     st.success(f"Classical Model Trained (Accuracy: {clf_acc:.2f})")
 
 
-    lstm_acc = train_bilstm_model(df, target_column, return_model=True)
+    lstm_acc = train_bilstm_model(df, target_column)
     st.success(f"Bi-LSTM Model Trained (Accuracy: {lstm_acc:.2f})")
 
 
@@ -66,7 +66,7 @@ def model_testing_app():
         clf_f1 = f1_score(y_test, y_pred_clf, zero_division=0)
 
         # Load or re-train Bi-LSTM model
-        bilstm_model, scaler, label_encoder = train_bilstm_model(df, target_column, return_model=True)
+        bilstm_model, scaler, label_encoder = train_bilstm_model(df, target_column)
         X_test_scaled = scaler.transform(X_test)
         X_test_reshaped = X_test_scaled.reshape((X_test_scaled.shape[0], 1, X_test_scaled.shape[1]))
         y_pred_lstm = bilstm_model.predict(X_test_reshaped)
