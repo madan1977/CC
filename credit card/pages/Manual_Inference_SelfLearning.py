@@ -59,7 +59,7 @@ def MISL():
         else:
             # Simulate retraining with previous and new data
             model.fit(X_new, y_new)
-        with open(f"{MODEL_DIR}/classical_model.pkl", "wb") as f:
+        with open(f"credit card/pages/classical_model.pkl", "wb") as f:
             pickle.dump(model, f)
         return model
 
@@ -76,14 +76,14 @@ def MISL():
             verbose=0,
             callbacks=[EarlyStopping(patience=1, restore_best_weights=True)]
         )
-        model.save(f"{MODEL_DIR}/bilstm_model.h5")
+        model.save(f"credit card/pages/bilstm_model.h5")
         return model
 
     # === Load existing models ===
     def load_models():
-        with open(f"{MODEL_DIR}/classical_model.pkl", "rb") as f:
+        with open(f"credit card/pages/classical_model.pkl", "rb") as f:
             clf = pickle.load(f)
-        lstm = load_model(f"{MODEL_DIR}/bilstm_model.h5")
+        lstm = load_model(f"credit card/pages/bilstm_model.h5")
         return clf, lstm
 
     # === MAIN ===
