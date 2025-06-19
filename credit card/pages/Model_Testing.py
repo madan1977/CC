@@ -30,7 +30,7 @@ def model_testing_app():
     
     file = os.path.join(current_dir, "backend_live_data.csv")
     df = pd.read_csv(file)
-            #st.dataframe(df.head())
+    st.dataframe(df.head(), df.size > 0, use_container_width=True)
 
             #st.markdown("### 🏷️ Target Inference")
     target_column = df.columns[-1]
