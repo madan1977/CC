@@ -24,9 +24,10 @@ def model_testing_app():
         # Upload Bi-LSTM model
         #bilstm_model_file = st.file_uploader("Upload Bi-LSTM Model (.h5)", type=["h5"])
         #trad_model_file = "pages/classical_model.pkl"
-        bilstm_model_file = "credit card/pages/bilstm_model.h5" 
-        if trad_model_file and bilstm_model_file:
+        bilstm_model_file_path = "credit card/pages/bilstm_model.h5"
+        if trad_model_file and bilstm_model_file_path:
             # Load traditional model
+            trad_model_file.seek(0)
             trad_model = pickle.load(trad_model_file)
             # Align columns
             expected_features = trad_model.feature_names_in_
@@ -49,13 +50,13 @@ def model_testing_app():
             st.write("Recall:", recall_score(y_test, y_pred_trad, average='weighted'))
             st.write("F1 Score:", f1_score(y_test, y_pred_trad, average='weighted'))
             st.text(classification_report(y_test, y_pred_trad))
-
             # Load Bi-LSTM model
             #bilstm_model = tf.keras.models.load_model(bilstm_model_file)
             # Load Bi-LSTM model with custom AttentionLayer
             bilstm_model = tf.keras.models.load_model(
-                bilstm_model_file, custom_objects={'AttentionLayer': AttentionLayer}
+                bilstm_model_file_path, custom_objects={'AttentionLayer': AttentionLayer}
             )
+            bilstm_model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
             bilstm_model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
 
             # Prepare X_test for Bi-LSTM: (samples, timesteps, features)
