@@ -29,7 +29,7 @@ def model_testing_app():
     
     
     file = os.path.join(current_dir, "backend_live_data.csv")
-    df1 = pd.read_csv(file)
+    df = pd.read_csv(file)
     st.dataframe(df.head())
 
             #st.markdown("### 🏷️ Target Inference")
