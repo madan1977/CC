@@ -43,7 +43,12 @@ def model_testing_app():
 
     lstm_acc = train_bilstm_model(df, target_column)
     st.success(f"Bi-LSTM Model Trained (Accuracy: {lstm_acc:.2f})")
-
+    st.markdown("### 📤 Upload a CSV file for testing")
+    uploaded_file = st.file_uploader("Choose a CSV file", type=["csv"])
+    if uploaded_file is not None:
+        df = pd.read_csv(uploaded_file)
+        st.success("File uploaded successfully!")
+        st.dataframe(df.head(), use_container_width=True)
     # Split data into features and target, then into train and test sets
     from sklearn.model_selection import train_test_split
     X = df.drop(columns=[target_column])
@@ -66,9 +71,9 @@ def model_testing_app():
 
         st.subheader("🧠 Traditional Model Results")
         st.write("Accuracy:", accuracy_score(y_test, y_pred_trad))
-        st.write("Precision:", precision_score(y_test, y_pred_trad, average='weighted',zero_division=0))
-        st.write("Recall:", recall_score(y_test, y_pred_trad, average='weighted',zero_division=0))
-        st.write("F1 Score:", f1_score(y_test, y_pred_trad, average='weighted',zero_division=0))
+        st.write("Precision:", precision_score(y_test, y_pred_trad, average='weighted'))
+        st.write("Recall:", recall_score(y_test, y_pred_trad, average='weighted'))
+        st.write("F1 Score:", f1_score(y_test, y_pred_trad, average='weighted'))
         st.text(classification_report(y_test, y_pred_trad))
 
         # ==== Bi-LSTM Inference ====
@@ -100,9 +105,9 @@ def model_testing_app():
 
         st.subheader("🧠 Bi-LSTM Model Results")
         st.write("Accuracy:", accuracy_score(y_test, y_pred_bilstm))
-        st.write("Precision:", precision_score(y_test, y_pred_bilstm, average='weighted',zero_division=0))
-        st.write("Recall:", recall_score(y_test, y_pred_bilstm, average='weighted',zero_division=0))
-        st.write("F1 Score:", f1_score(y_test, y_pred_bilstm, average='weighted',zero_division=0))
+        st.write("Precision:", precision_score(y_test, y_pred_bilstm, average='weighted'))
+        st.write("Recall:", recall_score(y_test, y_pred_bilstm, average='weighted'))
+        st.write("F1 Score:", f1_score(y_test, y_pred_bilstm, average='weighted'))
         st.text(classification_report(y_test, y_pred_bilstm))
 
         # ==== Comparison ====
