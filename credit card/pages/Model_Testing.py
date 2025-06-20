@@ -49,7 +49,13 @@ def model_testing_app():
         df = pd.read_csv(uploaded_file)
         st.success("File uploaded successfully!")
         st.dataframe(df.head(), use_container_width=True)
-    # Split data into features and target, then into train and test sets
+        clf_acc = train_classical_model(df, target_column)
+        st.success(f"Classical Model Trained (Accuracy: {clf_acc:.2f})")
+
+
+        lstm_acc = train_bilstm_model(df, target_column)
+        st.success(f"Bi-LSTM Model Trained (Accuracy: {lstm_acc:.2f})")
+        # Split data into features and target, then into train and test sets
         from sklearn.model_selection import train_test_split
         X = df.drop(columns=[target_column])
         y = df[target_column]
