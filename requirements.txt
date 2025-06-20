@@ -1,31 +1,53 @@
+python==3.11.0
 
-openpyxl
-tensorflow
+matplotlib
+openpyxl==3.1.2
+tensorflow==2.18.0
+absl-py==2.2.1
 
+appdirs==1.4.4
 
-keras
+astunparse==1.6.3
 
+autobahn==19.11.2
 
+dataclasses-json==0.6.7
 
-langchain
-langchain-community
-langchain-core
-langchain-text-splitters
-langsmith
+flatbuffers==25.2.10
 
-libclang
+gast==0.6.0
+
+google-pasta==0.2.0
+
+grpcio==1.71.0
+h11==0.16.0
+
+httpcore==1.0.9
+httpx==0.28.1
+httpx-sse==0.4.0
+
+imblearn==0.0
+
+jiter==0.9.0
+
+jsonpointer==2.1
+
+keras==3.9.1
+
+kiteconnect==5.0.1
+
+langchain==0.3.24
+langchain-community==0.3.22
+langchain-core==0.3.56
+langchain-text-splitters==0.3.8
+langsmith==0.3.34
+
+libclang==18.1.1
 
 
 
 
 openai==1.76.0
 
-
-
-
-
-
-streamlit==1.44.1
-streamlit-option-menu==0.4.0
 
 
