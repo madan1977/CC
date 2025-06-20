@@ -43,8 +43,7 @@ def model_testing_app():
 
     lstm_acc = train_bilstm_model(df, target_column)
     st.success(f"Bi-LSTM Model Trained (Accuracy: {lstm_acc:.2f})")
-    st.markdown("### 📤 Upload a CSV file for testing")
-    uploaded_file = st.file_uploader("Choose a CSV file", type=["csv"])
+  
     
     # Split data into features and target, then into train and test sets
     from sklearn.model_selection import train_test_split
