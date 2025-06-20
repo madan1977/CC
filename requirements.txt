@@ -1,6 +1,6 @@
-tensorflow-gpu==1.12.0
-cuda==9.0
-cuDNN==7.1.4
+tensorflow-gpu
+cuda
+cuDNN
 matplotlib
 openpyxl==3.1.2
 tensorflow==2.17.0
