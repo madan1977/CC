@@ -69,7 +69,7 @@ def model_testing_app():
     st.title("BiLSTM with Attention: Credit Card Fraud Detection")
 
     # Load data
-    df = pd.read_csv("backend_live_data.csv")
+    df = pd.read_csv("credit card/pages/backend_live_data.csv")
     st.write("Sample Data", df.head())
 
     target_col = "Fraudulent"
