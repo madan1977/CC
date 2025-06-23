@@ -111,17 +111,24 @@ def train_bilstm_model(df, target_column):
     class_weight_dict = dict(enumerate(class_weights))
 
     # Build Bi-LSTM model (with Attention Layer inside)
+    from pages.bilstm_model import build_bilstm_model
     model = build_bilstm_model(
         input_shape=(1, X.shape[1]),
         output_dim=output_dim,
-        loss_fn=loss_fn
+        loss_fn=loss_fn,
+        lstm_units_1=256,   # Increased units
+        lstm_units_2=128,   # Increased units
+        dense_units=256,    # Increased dense layer
+        dropout_1=0.2,      # Reduced dropout
+        dropout_2=0.2,
+        dropout_dense=0.2,
+        learning_rate=0.0001  # Lower learning rate
     )
 
     # Callbacks
-    early_stop = EarlyStopping(monitor='val_loss', patience=5, restore_best_weights=True)
-    lr_scheduler = ReduceLROnPlateau(monitor='val_loss', factor=0.5, patience=2)
+    early_stop = EarlyStopping(monitor='val_loss', patience=10, restore_best_weights=True)
+    lr_scheduler = ReduceLROnPlateau(monitor='val_loss', factor=0.5, patience=3)
 
-    # Train
     # Set random seeds for reproducibility
     SEED = 42
     random.seed(SEED)
@@ -129,13 +136,15 @@ def train_bilstm_model(df, target_column):
     os.environ["PYTHONHASHSEED"] = str(SEED)
     tf.random.set_seed(SEED)
 
+    # Train
     model.fit(
         X_train, y_train,
-        epochs=100,
-        batch_size=32,
+        epochs=200,
+        batch_size=16,
         validation_split=0.2,
+        shuffle=False,
         callbacks=[early_stop, lr_scheduler],
-        class_weight=class_weight_dict if output_dim == 1 else None,
+        class_weight=class_weight_dict,
         verbose=1
     )
     acc = model.evaluate(X_test, y_test, verbose=1)[1]
