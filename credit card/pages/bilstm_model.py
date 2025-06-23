@@ -35,23 +35,27 @@ class AttentionLayer(Layer):
     def compute_output_shape(self, input_shape):
         return (input_shape[0], input_shape[-1])
 
-def build_bilstm_model(input_shape, output_dim, loss_fn='binary_crossentropy'):
+def build_bilstm_model(
+    input_shape, output_dim, loss_fn='binary_crossentropy',
+    lstm_units_1=128, lstm_units_2=64, dense_units=128,
+    dropout_1=0.4, dropout_2=0.3, dropout_dense=0.3, learning_rate=0.0005
+):
     model = Sequential()
-    model.add(Bidirectional(LSTM(128, return_sequences=True), input_shape=input_shape))
-    model.add(Dropout(0.4))
+    model.add(Bidirectional(LSTM(lstm_units_1, return_sequences=True), input_shape=input_shape))
+    model.add(Dropout(dropout_1))
     model.add(BatchNormalization())
 
-    model.add(Bidirectional(LSTM(64, return_sequences=True)))
-    model.add(Dropout(0.3))
+    model.add(Bidirectional(LSTM(lstm_units_2, return_sequences=True)))
+    model.add(Dropout(dropout_2))
     model.add(AttentionLayer())
 
-    model.add(Dense(128, activation='relu'))
-    model.add(Dropout(0.3))
+    model.add(Dense(dense_units, activation='relu'))
+    model.add(Dropout(dropout_dense))
 
     if output_dim == 1:
         model.add(Dense(1, activation='sigmoid'))
     else:
         model.add(Dense(output_dim, activation='softmax'))
 
-    model.compile(loss=loss_fn, optimizer=Adam(0.0005), metrics=['accuracy'])
+    model.compile(loss=loss_fn, optimizer=Adam(learning_rate), metrics=['accuracy'])
     return model
