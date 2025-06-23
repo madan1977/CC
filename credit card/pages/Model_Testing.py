@@ -39,7 +39,7 @@ def model_testing_app():
         file = os.path.join(current_dir, "backend_live_right.csv")
     else:
         file = os.path.join(current_dir, "backend_live_data.csv")
-    file = os.path.join(current_dir, "backend_live_data.csv")
+    #file = os.path.join(current_dir, "backend_live_data.csv")
     df = pd.read_csv(file)
     st.dataframe(df.head())
 
