@@ -30,12 +30,7 @@ def plot_confusion(y_true, y_pred, labels):
 
 def model_testing_app():
     st.title("Model Testing: Traditional vs Bi-LSTM")
-    dataset_option = st.radio(
-        "Select Dataset for Testing:",
-        ("Right Fit Dataset", "Imbalanced Dataset"),
-        index=0
-    )
-    
+   
     file = os.path.join(current_dir, "backend_live_data.csv")
     df = pd.read_csv(file)
     st.dataframe(df.head())
