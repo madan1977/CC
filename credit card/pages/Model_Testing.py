@@ -20,6 +20,10 @@ parent_dir = os.path.abspath(os.path.join(current_dir, '..'))
 if parent_dir not in sys.path:
     sys.path.append(parent_dir)
 
+@st.cache_data
+def load_data(file):
+    return pd.read_csv(file)
+
 def plot_confusion(y_true, y_pred, labels):
     cm = confusion_matrix(y_true, y_pred)
     fig, ax = plt.subplots()
@@ -30,20 +34,23 @@ def plot_confusion(y_true, y_pred, labels):
 
 def model_testing_app():
     st.title("Model Testing: Traditional vs Bi-LSTM")
-   
+    
+    
     file = os.path.join(current_dir, "backend_live_data.csv")
-    df = pd.read_csv(file)
+    df = load_data(file)
     st.dataframe(df.head())
 
     target_column = df.columns[-1]
 
-    # === Train Classical Model ===
-    clf_acc = train_classical_model(df, target_column)
-    st.success(f"Classical Model Trained (Accuracy: {clf_acc:.2f})")
+    train_clicked = st.button("Train Models")
+    if train_clicked:
+        clf_acc = train_classical_model(df, target_column)
+        st.success(f"Classical Model Trained (Accuracy: {clf_acc:.2f})")
 
-    # === Train Bi-LSTM Model ===
-    bilstm_acc = train_bilstm_model(df, target_column)
-    st.success(f"Bi-LSTM Model Trained (Accuracy: {bilstm_acc:.4f})")
+        bilstm_acc = train_bilstm_model(df, target_column)
+        st.success(f"Bi-LSTM Model Trained (Accuracy: {bilstm_acc:.4f})")
+    else:
+        st.info("Click 'Train Models' to train or retrain the models.")
 
     # === Prepare for Inference ===
     from sklearn.model_selection import train_test_split
