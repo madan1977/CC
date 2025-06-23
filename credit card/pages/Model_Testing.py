@@ -35,11 +35,8 @@ def model_testing_app():
         ("Right Fit Dataset", "Imbalanced Dataset"),
         index=0
     )
-    if dataset_option == "Right Fit Dataset":
-        file = os.path.join(current_dir, "backend_live_right.csv")
-    else:
-        file = os.path.join(current_dir, "backend_live_data.csv")
-    #file = os.path.join(current_dir, "backend_live_data.csv")
+    
+    file = os.path.join(current_dir, "backend_live_data.csv")
     df = pd.read_csv(file)
     st.dataframe(df.head())
 
