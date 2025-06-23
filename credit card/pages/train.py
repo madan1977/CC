@@ -53,6 +53,7 @@ def train_bilstm_model(df, target_column):
     df = df.copy()
     import tensorflow as tf
     import streamlit as st
+    import random
     gpus = tf.config.list_physical_devices('GPU')
     if gpus:
         st.success(f"✅ GPU detected: {gpus}")
@@ -121,6 +122,13 @@ def train_bilstm_model(df, target_column):
     lr_scheduler = ReduceLROnPlateau(monitor='val_loss', factor=0.5, patience=2)
 
     # Train
+    # Set random seeds for reproducibility
+    SEED = 42
+    random.seed(SEED)
+    np.random.seed(SEED)
+    os.environ["PYTHONHASHSEED"] = str(SEED)
+    tf.random.set_seed(SEED)
+
     model.fit(
         X_train, y_train,
         epochs=100,
