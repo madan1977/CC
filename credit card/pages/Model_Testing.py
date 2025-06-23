@@ -42,15 +42,13 @@ def model_testing_app():
 
     target_column = df.columns[-1]
 
-    train_clicked = st.button("Train Models")
-    if train_clicked:
-        clf_acc = train_classical_model(df, target_column)
-        st.success(f"Classical Model Trained (Accuracy: {clf_acc:.2f})")
+    
+    clf_acc = train_classical_model(df, target_column)
+    st.success(f"Classical Model Trained (Accuracy: {clf_acc:.2f})")
 
-        bilstm_acc = train_bilstm_model(df, target_column)
-        st.success(f"Bi-LSTM Model Trained (Accuracy: {bilstm_acc:.4f})")
-    else:
-        st.info("Click 'Train Models' to train or retrain the models.")
+    bilstm_acc = train_bilstm_model(df, target_column)
+    st.success(f"Bi-LSTM Model Trained (Accuracy: {bilstm_acc:.4f})")
+   
 
     # === Prepare for Inference ===
     from sklearn.model_selection import train_test_split
