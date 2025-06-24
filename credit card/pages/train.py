@@ -54,50 +54,52 @@ def train_bilstm_model(df, target_column):
     import tensorflow as tf
     import streamlit as st
     import random
+
     gpus = tf.config.list_physical_devices('GPU')
     if gpus:
         st.success(f"✅ GPU detected: {gpus}")
     else:
         st.warning("⚠️ GPU not detected, training on CPU.")
 
-st.write("This compares the time taken for a large matrix multiplication using CPU and GPU.")
+    st.write("This compares the time taken for a large matrix multiplication using CPU and GPU.")
 
-matrix_size = st.slider("Matrix Size", min_value=1000, max_value=10000, step=1000, value=5000)
+    matrix_size = st.slider("Matrix Size", min_value=1000, max_value=10000, step=1000, value=5000)
 
-def run_benchmark(device_name):
-    with tf.device(device_name):
-        a = tf.random.normal([matrix_size, matrix_size])
-        b = tf.random.normal([matrix_size, matrix_size])
-        start = time.time()
-        c = tf.matmul(a, b)
-        end = time.time()
-        return end - start
+    def run_benchmark(device_name):
+        with tf.device(device_name):
+            a = tf.random.normal([matrix_size, matrix_size])
+            b = tf.random.normal([matrix_size, matrix_size])
+            start = time.time()
+            c = tf.matmul(a, b)
+            end = time.time()
+            return end - start
 
-# Run on CPU
-st.subheader("🧠 CPU Benchmark")
-cpu_time = run_benchmark("/CPU:0")
-st.success(f"CPU Time: {cpu_time:.4f} seconds")
+    # Run on CPU
+    st.subheader("🧠 CPU Benchmark")
+    cpu_time = run_benchmark("/CPU:0")
+    st.success(f"CPU Time: {cpu_time:.4f} seconds")
 
-# Check for GPU and run if available
-gpu_devices = tf.config.list_physical_devices("GPU")
+    # Check for GPU and run if available
+    gpu_devices = tf.config.list_physical_devices("GPU")
 
-if gpu_devices:
-    st.subheader("⚡ GPU Benchmark")
-    gpu_time = run_benchmark("/GPU:0")
-    st.success(f"GPU Time: {gpu_time:.4f} seconds")
+    if gpu_devices:
+        st.subheader("⚡ GPU Benchmark")
+        gpu_time = run_benchmark("/GPU:0")
+        st.success(f"GPU Time: {gpu_time:.4f} seconds")
 
-    # Comparison
-    speedup = cpu_time / gpu_time if gpu_time > 0 else float('inf')
-    st.info(f"🚀 Speedup: GPU is approximately **{speedup:.2f}x** faster than CPU")
-else:
-    st.warning("❌ No GPU detected. Using CPU only.")
+        # Comparison
+        speedup = cpu_time / gpu_time if gpu_time > 0 else float('inf')
+        st.info(f"🚀 Speedup: GPU is approximately **{speedup:.2f}x** faster than CPU")
+    else:
+        st.warning("❌ No GPU detected. Using CPU only.")
 
-# Display detected devices
-st.sidebar.header("Device Info")
-st.sidebar.write("TensorFlow version:", tf.__version__)
-st.sidebar.write("Available devices:")
-for device in tf.config.list_logical_devices():
-    st.sidebar.write(f"- {device.name}")
+    # Display detected devices
+    st.sidebar.header("Device Info")
+    st.sidebar.write("TensorFlow version:", tf.__version__)
+    st.sidebar.write("Available devices:")
+    for device in tf.config.list_logical_devices():
+        st.sidebar.write(f"- {device.name}")
+
     # Encode categorical features
     label_encoders = {}
     for col in df.select_dtypes(include=['object', 'category']).columns:
@@ -207,4 +209,4 @@ for device in tf.config.list_logical_devices():
     with open(os.path.join(current_dir, "bilstm_labelencoder.pkl"), "wb") as f:
         pickle.dump(le_target, f)
 
-    return acc
+    return acc, macro_f1
