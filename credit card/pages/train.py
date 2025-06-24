@@ -163,7 +163,7 @@ def train_bilstm_model(df, target_column):
         dropout_2=0.2,
         dropout_dense=0.2,
         learning_rate=0.0001,
-        optimizer_name="adam"  # Change to "adam" or "rmsprop"
+        optimizer_name="rmsprop"  # Change to "adam" or "rmsprop"
     )
 
     # Callbacks
