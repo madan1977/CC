@@ -156,13 +156,14 @@ def train_bilstm_model(df, target_column):
         input_shape=(1, X.shape[1]),
         output_dim=output_dim,
         loss_fn=loss_fn,
-        lstm_units_1=256,   # Increased units
-        lstm_units_2=128,   # Increased units
-        dense_units=256,    # Increased dense layer
-        dropout_1=0.2,      # Reduced dropout
+        lstm_units_1=256,
+        lstm_units_2=128,
+        dense_units=256,
+        dropout_1=0.2,
         dropout_2=0.2,
         dropout_dense=0.2,
-        learning_rate=0.0001  # Lower learning rate
+        learning_rate=0.0001,
+        optimizer_name="adam"  # Change to "adam" or "rmsprop"
     )
 
     # Callbacks
