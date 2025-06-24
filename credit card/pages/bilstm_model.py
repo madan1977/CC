@@ -38,8 +38,17 @@ class AttentionLayer(Layer):
 def build_bilstm_model(
     input_shape, output_dim, loss_fn='binary_crossentropy',
     lstm_units_1=128, lstm_units_2=64, dense_units=128,
-    dropout_1=0.4, dropout_2=0.3, dropout_dense=0.3, learning_rate=0.0005
+    dropout_1=0.4, dropout_2=0.3, dropout_dense=0.3, learning_rate=0.0005, optimizer_name="adam"
 ):
+    from tensorflow.keras.optimizers import Adam, RMSprop
+
+    if optimizer_name.lower() == "adam":
+        optimizer = Adam(learning_rate=learning_rate)
+    elif optimizer_name.lower() == "rmsprop":
+        optimizer = RMSprop(learning_rate=learning_rate)
+    else:
+        raise ValueError("Unsupported optimizer")
+
     model = Sequential()
     model.add(Bidirectional(LSTM(lstm_units_1, return_sequences=True), input_shape=input_shape))
     model.add(Dropout(dropout_1))
@@ -57,5 +66,5 @@ def build_bilstm_model(
     else:
         model.add(Dense(output_dim, activation='softmax'))
 
-    model.compile(loss=loss_fn, optimizer=Adam(learning_rate), metrics=['accuracy'])
+    model.compile(loss=loss_fn, optimizer=optimizer, metrics=['accuracy'])
     return model
