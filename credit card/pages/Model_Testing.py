@@ -46,9 +46,21 @@ def model_testing_app():
     clf_acc = train_classical_model(df, target_column)
     st.success(f"Classical Model Trained (Accuracy: {clf_acc:.2f})")
 
-    bilstm_acc = train_bilstm_model(df, target_column)
-    st.success(f"Bi-LSTM Model Trained (Accuracy: {bilstm_acc:.4f})")
-   
+    acc, macro_f1 = train_bilstm_model(df, target_column)
+    st.write(f"Accuracy: {acc:.4f}")
+    st.write(f"Macro F1 Score: {macro_f1:.4f}")
+    if macro_f1 < 0.7:
+        st.warning(
+            "⚠️ The Macro F1 Score is below 0.7. This suggests the model may not be performing well on minority classes, "
+            "which is critical in imbalanced datasets. Consider improving your model or addressing class imbalance."
+        )
+    else:
+        st.info(
+            "Note: The Macro F1 Score is especially important when dealing with imbalanced datasets. "
+            "Unlike accuracy, which can be misleading if one class dominates, the macro F1 calculates the F1 score for each class independently and then averages them. "
+            "This ensures that the performance on minority classes is given equal weight, making it a better metric for evaluating models on imbalanced data. "
+            "A macro F1 score above 0.7 generally indicates reasonable performance across all classes."
+        )
 
     # === Prepare for Inference ===
     from sklearn.model_selection import train_test_split
