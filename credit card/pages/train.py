@@ -182,7 +182,7 @@ def train_bilstm_model(df, target_column):
     # Train
     model.fit(
         X_train, y_train,
-        epochs=100,
+        epochs=30,
         batch_size=16,
         validation_split=0.2,
         shuffle=False,
