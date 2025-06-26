@@ -6,6 +6,7 @@ def MISL():
     import numpy as np
     import pickle
     import os
+    from pages.bilstm_model import AttentionLayer
     from tensorflow.keras.models import Sequential, load_model
     from tensorflow.keras.layers import LSTM, Dense
     from tensorflow.keras.optimizers import Adam
