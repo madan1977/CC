@@ -63,7 +63,8 @@ def MISL():
         else:
             # Simulate retraining with previous and new data
             model.fit(X_new, y_new)
-        with open(f"{MODEL_DIR}/classical_model.pkl", "wb") as f:
+        trad_model_path = os.path.join(current_dir, "classical_model.pkl")
+        with open(trad_model_path, "wb") as f:
             pickle.dump(model, f)
         return model
 
@@ -85,9 +86,11 @@ def MISL():
 
     # === Load existing models ===
     def load_models():
-        with open(f"{MODEL_DIR}/classical_model.pkl", "rb") as f:
+        trad_model_path = os.path.join(current_dir, "classical_model.pkl")
+        with open(trad_model_path, "rb") as f:
             clf = pickle.load(f)
-        lstm = load_model(f"{MODEL_DIR}/bilstm_model.h5")
+        bilstm_model_path = os.path.join(current_dir, "bilstm_model.h5")    
+        lstm = load_model bilstm_model_path)
         return clf, lstm
 
     # === MAIN ===
