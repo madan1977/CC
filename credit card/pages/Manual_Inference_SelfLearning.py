@@ -81,7 +81,8 @@ def MISL():
             verbose=0,
             callbacks=[EarlyStopping(patience=1, restore_best_weights=True)]
         )
-        model.save(f"{MODEL_DIR}/bilstm_model.h5")
+        bilstm_model_path = os.path.join(current_dir, "bilstm_model.h5")  
+        model.save(bilstm_model_path)
         return model
 
     # === Load existing models ===
@@ -90,7 +91,7 @@ def MISL():
         with open(trad_model_path, "rb") as f:
             clf = pickle.load(f)
         bilstm_model_path = os.path.join(current_dir, "bilstm_model.h5")    
-        lstm = load_model bilstm_model_path)
+        lstm = load_model(bilstm_model_path)
         return clf, lstm
 
     # === MAIN ===
