@@ -11,13 +11,18 @@ def MISL():
     from tensorflow.keras.callbacks import EarlyStopping
     from sklearn.preprocessing import LabelEncoder, StandardScaler
     from sklearn.ensemble import RandomForestClassifier
-
+    import os
+    import sys
+    current_dir = os.path.dirname(os.path.abspath(__file__))  # pages/
+    parent_dir = os.path.abspath(os.path.join(current_dir, '..'))  # StreamlitCreditCardFraud/
+    if parent_dir not in sys.path:
+        sys.path.append(parent_dir)
     st.title("🧠 Manual Inference with Auto Self-Learning")
-
+    DATA_PATH = os.path.join(current_dir, "backend_live_data.csv")
     # === CONFIG ===
-    DATA_PATH = r"D:\GENAI\pythonProject1\IIMC Project\CreditCard\pages\backend_live_data.csv"
+    # DATA_PATH = r"D:\GENAI\pythonProject1\IIMC Project\CreditCard\pages\backend_live_data.csv"
     TARGET_COLUMN = "Fraudulent"
-    SELF_LEARN_FILE = "data/manual_self_learned.csv"
+    SELF_LEARN_FILE = os.path.join(current_dir, "manual_self_learned.csv")
     MODEL_DIR = "models"
     os.makedirs(MODEL_DIR, exist_ok=True)
 
