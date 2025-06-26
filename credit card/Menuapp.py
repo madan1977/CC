@@ -309,14 +309,14 @@ if menu_option == "Dashboard":
                         classical_genuine,
                         delta=classical_genuine_delta,
                         delta_color="inverse" if classical_genuine_delta < 0 else ("off" if classical_genuine_delta > 0 else "normal"),
-                        border=True
+                       
                     )
                     st.metric(
                         "Predicted Fraud",
                         classical_fraud,
                         delta=classical_fraud_delta,
                         delta_color="inverse" if classical_fraud_delta > 0 else ("off" if classical_fraud_delta < 0 else "normal"),
-                        border=True
+                       
                     )
 
                 with col3:
@@ -330,25 +330,25 @@ if menu_option == "Dashboard":
                         bilstm_genuine,
                         delta=bilstm_genuine_delta,
                         delta_color="inverse" if bilstm_genuine_delta < 0 else ("off" if bilstm_genuine_delta > 0 else "normal"),
-                        border=True
+                       
                     )
                     st.metric(
                         "Predicted Fraud",
                         bilstm_fraud,
                         delta=bilstm_fraud_delta,
                         delta_color="inverse" if bilstm_fraud_delta > 0 else ("off" if bilstm_fraud_delta < 0 else "normal"),
-                        border=True
+                       
                     )
 
                 with col4:
                     st.markdown("**Classical Model Metrics**")
-                    st.metric("Accuracy", f"{classical_acc:.3f}", border_color="green")
-                    st.metric("Macro F1", f"{classical_macro_f1:.3f}", border_color="green")
+                    st.metric("Accuracy", f"{classical_acc:.3f}")
+                    st.metric("Macro F1", f"{classical_macro_f1:.3f}")
 
                 with col5:
                     st.markdown("**BiLSTM Model Metrics**")
-                    st.metric("Accuracy", f"{bilstm_acc:.3f}", border_color="red")
-                    st.metric("Macro F1", f"{bilstm_macro_f1:.3f}", border_color="red")
+                    st.metric("Accuracy", f"{bilstm_acc:.3f}")
+                    st.metric("Macro F1", f"{bilstm_macro_f1:.3f}")
            
             st.session_state.current_index = index + 1
 
