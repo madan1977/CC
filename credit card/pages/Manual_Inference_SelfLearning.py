@@ -12,14 +12,13 @@ def MISL():
     from sklearn.preprocessing import LabelEncoder, StandardScaler
     from sklearn.ensemble import RandomForestClassifier
 
-  
     st.title("🧠 Manual Inference with Auto Self-Learning")
 
     # === CONFIG ===
-    DATA_PATH = r"credit card/pages/backend_live_data.csv"
+    DATA_PATH = r"D:\GENAI\pythonProject1\IIMC Project\CreditCard\pages\backend_live_data.csv"
     TARGET_COLUMN = "Fraudulent"
-    SELF_LEARN_FILE = "credit card/pages/manual_self_learned.csv"
-    MODEL_DIR = "credit card/pages"
+    SELF_LEARN_FILE = "data/manual_self_learned.csv"
+    MODEL_DIR = "models"
     os.makedirs(MODEL_DIR, exist_ok=True)
 
     # === Load Dataset ===
@@ -59,7 +58,7 @@ def MISL():
         else:
             # Simulate retraining with previous and new data
             model.fit(X_new, y_new)
-        with open(f"credit card/pages/classical_model.pkl", "wb") as f:
+        with open(f"{MODEL_DIR}/classical_model.pkl", "wb") as f:
             pickle.dump(model, f)
         return model
 
@@ -76,14 +75,14 @@ def MISL():
             verbose=0,
             callbacks=[EarlyStopping(patience=1, restore_best_weights=True)]
         )
-        model.save(f"credit card/pages/bilstm_model.h5")
+        model.save(f"{MODEL_DIR}/bilstm_model.h5")
         return model
 
     # === Load existing models ===
     def load_models():
-        with open(f"credit card/pages/classical_model.pkl", "rb") as f:
+        with open(f"{MODEL_DIR}/classical_model.pkl", "rb") as f:
             clf = pickle.load(f)
-        lstm = load_model(f"credit card/pages/bilstm_model.h5")
+        lstm = load_model(f"{MODEL_DIR}/bilstm_model.h5")
         return clf, lstm
 
     # === MAIN ===
