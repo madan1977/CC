@@ -295,8 +295,8 @@ if menu_option == "Dashboard":
 
                 with col1:
                     st.markdown("**Actual Data**")
-                    st.metric("Genuine", actual_genuine, border_color="green", border=True)
-                    st.metric("Fraud", actual_fraud, border_color="red", border=True)
+                    st.metric("Genuine", actual_genuine, border=True)
+                    st.metric("Fraud", actual_fraud, border=True)
 
                 with col2:
                     st.markdown("**Classical Model**")
@@ -309,7 +309,6 @@ if menu_option == "Dashboard":
                         classical_genuine,
                         delta=classical_genuine_delta,
                         delta_color="inverse" if classical_genuine_delta < 0 else ("off" if classical_genuine_delta > 0 else "normal"),
-                        border_color="green",
                         border=True
                     )
                     st.metric(
@@ -317,7 +316,6 @@ if menu_option == "Dashboard":
                         classical_fraud,
                         delta=classical_fraud_delta,
                         delta_color="inverse" if classical_fraud_delta > 0 else ("off" if classical_fraud_delta < 0 else "normal"),
-                        border_color="red",
                         border=True
                     )
 
@@ -332,7 +330,6 @@ if menu_option == "Dashboard":
                         bilstm_genuine,
                         delta=bilstm_genuine_delta,
                         delta_color="inverse" if bilstm_genuine_delta < 0 else ("off" if bilstm_genuine_delta > 0 else "normal"),
-                        border_color="green",
                         border=True
                     )
                     st.metric(
@@ -340,7 +337,6 @@ if menu_option == "Dashboard":
                         bilstm_fraud,
                         delta=bilstm_fraud_delta,
                         delta_color="inverse" if bilstm_fraud_delta > 0 else ("off" if bilstm_fraud_delta < 0 else "normal"),
-                        border_color="red",
                         border=True
                     )
 
