@@ -423,5 +423,5 @@ elif menu_option == "Detection using Agentic AI":
 
 elif menu_option == "Detect Anomaly and Novel Attack Demo":
     from pages.Manual_Inference_SelfLearning import MISL
-    from sklearn.metrics import f1_score
+    #from sklearn.metrics import f1_score
     MISL()
