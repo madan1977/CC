@@ -1,152 +1,215 @@
-import streamlit as st
 import pandas as pd
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score
+import time
 import pickle
-import tensorflow as tf
 import os
 import sys
-from sklearn.metrics import (
-    accuracy_score, precision_score, recall_score, f1_score,
-    classification_report, confusion_matrix
-)
-import seaborn as sns
-import matplotlib.pyplot as plt
-from sklearn.preprocessing import LabelEncoder
-
-from pages.bilstm_model import AttentionLayer
-
-
-current_dir = os.path.dirname(os.path.abspath(__file__))
-parent_dir = os.path.abspath(os.path.join(current_dir, '..'))
+current_dir = os.path.dirname(os.path.abspath(__file__))  # pages/
+parent_dir = os.path.abspath(os.path.join(current_dir, '..'))  # StreamlitCreditCardFraud/
 if parent_dir not in sys.path:
     sys.path.append(parent_dir)
+from pages.bilstm_model import build_bilstm_model
+from tensorflow.keras.utils import to_categorical
+from sklearn.preprocessing import LabelEncoder, StandardScaler
+from sklearn.metrics import f1_score
+from sklearn.utils.class_weight import compute_class_weight
+from tensorflow.keras.callbacks import EarlyStopping, ReduceLROnPlateau
+from tensorflow.keras.utils import to_categorical
+from imblearn.over_sampling import SMOTE
 
-@st.cache_data
-def load_data(file):
-    return pd.read_csv(file)
 
-def plot_confusion(y_true, y_pred, labels):
-    cm = confusion_matrix(y_true, y_pred)
-    fig, ax = plt.subplots()
-    sns.heatmap(cm, annot=True, fmt='d', cmap="Blues", xticklabels=labels, yticklabels=labels)
-    plt.xlabel('Predicted')
-    plt.ylabel('Actual')
-    st.pyplot(fig)
+def preprocess(df, target_column):
+    df = df.copy()
 
-def model_testing_app():
-    st.title("Model Testing: Traditional vs Bi-LSTM")
-    
-    
-    file = os.path.join(current_dir, "backend_live_data.csv")
-    df = load_data(file)
-    st.dataframe(df.head())
+    # Encode categorical columns
+    for col in df.select_dtypes(include=["object", "category"]).columns:
+        df[col] = LabelEncoder().fit_transform(df[col])
 
-    target_column = df.columns[-1]
-
-    
-    clf_acc = train_classical_model(df, target_column)
-    st.success(f"Classical Model Trained (Accuracy: {clf_acc:.2f})")
-
-    acc, macro_f1 = train_bilstm_model(df, target_column)
-    st.write(f"Accuracy: {acc:.4f}")
-    st.write(f"Macro F1 Score: {macro_f1:.4f}")
-    if macro_f1 < 0.7:
-        st.warning(
-            "⚠️ The Macro F1 Score is below 0.7. This suggests the model may not be performing well on minority classes, "
-            "which is critical in imbalanced datasets. Consider improving your model or addressing class imbalance."
-        )
-    else:
-        st.info(
-            "Note: The Macro F1 Score is especially important when dealing with imbalanced datasets. "
-            "Unlike accuracy, which can be misleading if one class dominates, the macro F1 calculates the F1 score for each class independently and then averages them. "
-            "This ensures that the performance on minority classes is given equal weight, making it a better metric for evaluating models on imbalanced data. "
-            "A macro F1 score above 0.7 generally indicates reasonable performance across all classes."
-        )
-
-    # === Prepare for Inference ===
-    from sklearn.model_selection import train_test_split
+    # Separate features and target
     X = df.drop(columns=[target_column])
     y = df[target_column]
+
+    return X, y
+
+def train_classical_model(df, target_column):
+    X, y = preprocess(df, target_column)
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-    trad_model_path = os.path.join(current_dir, "classical_model.pkl")
-    bilstm_model_path = os.path.join(current_dir, "bilstm_model.h5")
-    scalar_bilstm_model_path = os.path.join(current_dir, "bilstm_scaler.pkl")
-    labelencoders_bilstm_model_path = os.path.join(current_dir, "bilstm_labelencoders.pkl")
-    labelencoder_target_path = os.path.join(current_dir, "bilstm_labelencoder.pkl")
+    model = RandomForestClassifier(n_estimators=100, random_state=42)
+    model.fit(X_train, y_train)
 
-    if os.path.exists(trad_model_path) and os.path.exists(bilstm_model_path):
-        # === Traditional Inference ===
-        with open(trad_model_path, "rb") as f:
-            trad_model = pickle.load(f)
+    y_pred = model.predict(X_test)
+    acc = accuracy_score(y_test, y_pred)
+    with open(os.path.join(current_dir, "classical_model.pkl"), "wb") as f:
+           pickle.dump(model, f)
 
-        expected_features = trad_model.feature_names_in_
-        X_test_clf = X_test.reindex(columns=expected_features, fill_value=0)
-        X_test_clf = X_test_clf.apply(pd.to_numeric, errors='coerce').fillna(0)
-        y_pred_trad = trad_model.predict(X_test_clf)
+    return acc
 
-        st.subheader("🧠 Traditional Model Results")
-        st.write("Accuracy:", accuracy_score(y_test, y_pred_trad))
-        st.write("Precision:", precision_score(y_test, y_pred_trad, average='weighted'))
-        st.write("Recall:", recall_score(y_test, y_pred_trad, average='weighted'))
-        st.write("F1 Score:", f1_score(y_test, y_pred_trad, average='weighted'))
-        st.text(classification_report(y_test, y_pred_trad))
-        plot_confusion(y_test, y_pred_trad, labels=sorted(y.unique()))
 
-        # === Bi-LSTM Inference ===
-        with open(scalar_bilstm_model_path, 'rb') as f:
-            scaler = pickle.load(f)
-        with open(labelencoders_bilstm_model_path, 'rb') as f:
-            label_encoders = pickle.load(f)
-        with open(labelencoder_target_path, 'rb') as f:
-            label_encoder = pickle.load(f)
+def train_bilstm_model(df, target_column):
+    df = df.copy()
+    import tensorflow as tf
+    import streamlit as st
+    import random
 
-        X_bilstm_pre = X_test.copy()
-        for col in X_bilstm_pre.select_dtypes(include=['object', 'category']).columns:
-            if col in label_encoders:
-                le = label_encoders[col]
-                X_bilstm_pre[col] = le.transform(X_bilstm_pre[col].astype(str))
-            else:
-                st.error(f"Missing encoder for column: {col}")
-                return
-
-        X_bilstm_pre = scaler.transform(X_bilstm_pre)
-        y_test_enc = label_encoder.transform(y_test)
-        X_bilstm_pre = X_bilstm_pre.reshape((X_bilstm_pre.shape[0], 1, X_bilstm_pre.shape[1]))
-
-        bilstm_model = tf.keras.models.load_model(
-            bilstm_model_path,
-            custom_objects={'AttentionLayer': AttentionLayer}
-        )
-
-        y_pred_prob = bilstm_model.predict(X_bilstm_pre)
-        if y_pred_prob.shape[-1] > 1:
-            y_pred = y_pred_prob.argmax(axis=-1)
-        else:
-            y_pred = (y_pred_prob > 0.5).astype(int).flatten()
-
-        st.subheader("🧠 Bi-LSTM Model Results")
-        st.write("Accuracy:", accuracy_score(y_test_enc, y_pred))
-        st.write("Precision:", precision_score(y_test_enc, y_pred, average='weighted'))
-        st.write("Recall:", recall_score(y_test_enc, y_pred, average='weighted'))
-        st.write("F1 Score (Weighted):", f1_score(y_test_enc, y_pred, average='weighted'))
-        st.write("F1 Score (Macro):", f1_score(y_test_enc, y_pred, average='macro'))
-        st.text(classification_report(y_test_enc, y_pred))
-        plot_confusion(y_test_enc, y_pred, labels=label_encoder.classes_)
-
-        # === Comparison ===
-        acc_trad = accuracy_score(y_test, y_pred_trad)
-        acc_bilstm = accuracy_score(y_test_enc, y_pred)
-        better = "Traditional Model" if acc_trad > acc_bilstm else (
-            "Bi-LSTM Model" if acc_bilstm > acc_trad else "Both models perform equally"
-        )
-        st.subheader("📊 Model Comparison")
-        st.success(f"🧠 Better Performing Model: **{better}**")
-
-        if acc_bilstm < 0.95:
-            st.warning("⚠️ Bi-LSTM accuracy is below 95%. Consider using SMOTE, attention, or more features.")
-
+    gpus = tf.config.list_physical_devices('GPU')
+    if gpus:
+        st.success(f"✅ GPU detected: {gpus}")
     else:
-        st.error("Model files not found. Ensure `.pkl` and `.h5` files exist.")
+        st.warning("⚠️ GPU not detected, training on CPU.")
 
-if __name__ == "__main__":
-    model_testing_app()
+    st.write("This compares the time taken for a large matrix multiplication using CPU and GPU.")
+    # Hide the Streamlit slider by setting matrix_size directly
+    matrix_size = 5000  # Default value, adjust as needed
+    #matrix_size = st.slider("Matrix Size", min_value=1000, max_value=10000, step=1000, value=5000)
+
+    def run_benchmark(device_name):
+        with tf.device(device_name):
+            a = tf.random.normal([matrix_size, matrix_size])
+            b = tf.random.normal([matrix_size, matrix_size])
+            start = time.time()
+            c = tf.matmul(a, b)
+            end = time.time()
+            return end - start
+
+    # Run on CPU
+    st.subheader("🧠 CPU Benchmark")
+    cpu_time = run_benchmark("/CPU:0")
+    st.success(f"CPU Time: {cpu_time:.4f} seconds")
+
+    # Check for GPU and run if available
+    gpu_devices = tf.config.list_physical_devices("GPU")
+
+    if gpu_devices:
+        st.subheader("⚡ GPU Benchmark")
+        gpu_time = run_benchmark("/GPU:0")
+        st.success(f"GPU Time: {gpu_time:.4f} seconds")
+
+        # Comparison
+        speedup = cpu_time / gpu_time if gpu_time > 0 else float('inf')
+        st.info(f"🚀 Speedup: GPU is approximately **{speedup:.2f}x** faster than CPU")
+    else:
+        st.warning("❌ No GPU detected. Using CPU only.")
+
+    # Display detected devices
+    st.sidebar.header("Device Info")
+    st.sidebar.write("TensorFlow version:", tf.__version__)
+    st.sidebar.write("Available devices:")
+    for device in tf.config.list_logical_devices():
+        st.sidebar.write(f"- {device.name}")
+
+    # Encode categorical features
+    label_encoders = {}
+    for col in df.select_dtypes(include=['object', 'category']).columns:
+        le = LabelEncoder()
+        df[col] = le.fit_transform(df[col].astype(str))
+        label_encoders[col] = le
+
+    # Separate features and target
+    X = df.drop(columns=[target_column])
+    y = df[target_column]
+
+    # Encode target
+    le_target = LabelEncoder()
+    y_encoded = le_target.fit_transform(y)
+
+    # Apply SMOTE to balance class distribution
+    smote = SMOTE(random_state=42)
+    X_resampled, y_resampled = smote.fit_resample(X, y_encoded)
+
+    # Scale features
+    scaler = StandardScaler()
+    X_scaled = scaler.fit_transform(X_resampled)
+
+    # Reshape for LSTM input
+    X_reshaped = X_scaled.reshape(X_scaled.shape[0], 1, X_scaled.shape[1])
+    #X_reshaped = X_reshaped.astype(np.float32)
+
+    # Determine output dimensions and loss function
+    num_classes = len(np.unique(y_resampled))
+    if num_classes == 2:
+        y_final = y_resampled
+        loss_fn = 'binary_crossentropy'
+        output_dim = 1
+    else:
+        y_final = to_categorical(y_resampled)
+        loss_fn = 'categorical_crossentropy'
+        output_dim = num_classes
+
+    # Train-test split
+    X_train, X_test, y_train, y_test = train_test_split(
+        X_reshaped, y_final, test_size=0.2, random_state=42
+    )
+
+    # Compute class weights
+    class_weights = compute_class_weight(
+        class_weight='balanced',
+        classes=np.unique(y_resampled),
+        y=y_resampled
+    )
+    class_weight_dict = dict(enumerate(class_weights))
+
+    # Build Bi-LSTM model (with Attention Layer inside)
+    from pages.bilstm_model import build_bilstm_model
+    model = build_bilstm_model(
+        input_shape=(1, X.shape[1]),
+        output_dim=output_dim,
+        loss_fn=loss_fn,
+        lstm_units_1=256,
+        lstm_units_2=128,
+        dense_units=256,
+        dropout_1=0.2,
+        dropout_2=0.2,
+        dropout_dense=0.2,
+        learning_rate=0.0001,
+        
+    )
+
+    # Callbacks
+    early_stop = EarlyStopping(monitor='val_loss', patience=10, restore_best_weights=True)
+    lr_scheduler = ReduceLROnPlateau(monitor='val_loss', factor=0.5, patience=3)
+
+    # Set random seeds for reproducibility
+    SEED = 42
+    random.seed(SEED)
+    np.random.seed(SEED)
+    os.environ["PYTHONHASHSEED"] = str(SEED)
+    tf.random.set_seed(SEED)
+
+    # Train
+    model.fit(
+        X_train, y_train,
+        epochs=100,
+        batch_size=16,
+        validation_split=0.2,
+        shuffle=False,
+        callbacks=[early_stop, lr_scheduler],
+        class_weight=class_weight_dict,
+        verbose=1
+    )
+    acc = model.evaluate(X_test, y_test, verbose=1)[1]
+    # Evaluate
+    y_pred_prob = model.predict(X_test)
+    if output_dim == 1:
+        y_pred = (y_pred_prob > 0.5).astype(int).flatten()
+        y_true = y_test
+    else:
+        y_pred = np.argmax(y_pred_prob, axis=1)
+        y_true = np.argmax(y_test, axis=1)
+
+    macro_f1 = f1_score(y_true, y_pred, average='macro')
+    
+    # Save model and preprocessing
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    model.save(os.path.join(current_dir, "bilstm_model.h5"))
+    with open(os.path.join(current_dir, "bilstm_scaler.pkl"), "wb") as f:
+        pickle.dump(scaler, f)
+    with open(os.path.join(current_dir, "bilstm_labelencoders.pkl"), "wb") as f:
+        pickle.dump(label_encoders, f)
+    with open(os.path.join(current_dir, "bilstm_labelencoder.pkl"), "wb") as f:
+        pickle.dump(le_target, f)
+
+    return acc, macro_f1
