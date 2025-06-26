@@ -25,7 +25,7 @@ st.markdown(
 st.sidebar.title("Navigation")
 menu_option = st.sidebar.radio(
     "Go to",
-    options=["Dashboard", "Model Testing", "Detection using Agentic AI", "Detect Anomaly and Novel Attack Demo"],
+    options=["Dashboard", "Model Testing", "Detection using Agentic AI", "Self Learning"],
 )
 
 # Initialize session state for monitoring, index tracking, and metrics
@@ -421,7 +421,7 @@ elif menu_option == "Detection using Agentic AI":
     from pages.creditcardfraudllm1 import display_gen_ai_fraud_form
     display_gen_ai_fraud_form()
 
-elif menu_option == "Detect Anomaly and Novel Attack Demo":
+elif menu_option == "Self Learning":
     from pages.Manual_Inference_SelfLearning import MISL
     #from sklearn.metrics import f1_score
     MISL()
