@@ -1,6 +1,7 @@
 # pages/3_Manual_Inference_Self_Learning.py
 def MISL():
     import streamlit as st
+    import tensorflow as tf
     import pandas as pd
     import numpy as np
     import pickle
