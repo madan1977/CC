@@ -94,6 +94,7 @@ def MISL():
         lstm = tf.keras.models.load_model(
             bilstm_model_path,
             custom_objects={'AttentionLayer': AttentionLayer}
+        )
         return clf, lstm
 
     # === MAIN ===
