@@ -23,8 +23,8 @@ def MISL():
     # DATA_PATH = r"D:\GENAI\pythonProject1\IIMC Project\CreditCard\pages\backend_live_data.csv"
     TARGET_COLUMN = "Fraudulent"
     SELF_LEARN_FILE = os.path.join(current_dir, "manual_self_learned.csv")
-    MODEL_DIR = "models"
-    os.makedirs(MODEL_DIR, exist_ok=True)
+    #MODEL_DIR = "models"
+    #os.makedirs(MODEL_DIR, exist_ok=True)
 
     # === Load Dataset ===
     def load_combined_data():
@@ -91,7 +91,9 @@ def MISL():
         with open(trad_model_path, "rb") as f:
             clf = pickle.load(f)
         bilstm_model_path = os.path.join(current_dir, "bilstm_model.h5")    
-        lstm = load_model(bilstm_model_path)
+        lstm = tf.keras.models.load_model(
+            bilstm_model_path,
+            custom_objects={'AttentionLayer': AttentionLayer}
         return clf, lstm
 
     # === MAIN ===
