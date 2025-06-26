@@ -295,8 +295,8 @@ if menu_option == "Dashboard":
 
                 with col1:
                     st.markdown("**Actual Data**")
-                    st.metric("Genuine", actual_genuine, border=True)
-                    st.metric("Fraud", actual_fraud, border=True)
+                    st.metric("Genuine", actual_genuine)
+                    st.metric("Fraud", actual_fraud)
 
                 with col2:
                     st.markdown("**Classical Model**")
@@ -342,13 +342,13 @@ if menu_option == "Dashboard":
 
                 with col4:
                     st.markdown("**Classical Model Metrics**")
-                    st.metric("Accuracy", f"{classical_acc:.3f}", border_color="green", border=True)
-                    st.metric("Macro F1", f"{classical_macro_f1:.3f}", border_color="green", border=True)
+                    st.metric("Accuracy", f"{classical_acc:.3f}", border_color="green")
+                    st.metric("Macro F1", f"{classical_macro_f1:.3f}", border_color="green")
 
                 with col5:
                     st.markdown("**BiLSTM Model Metrics**")
-                    st.metric("Accuracy", f"{bilstm_acc:.3f}", border_color="red", border=True)
-                    st.metric("Macro F1", f"{bilstm_macro_f1:.3f}", border_color="red", border=True)
+                    st.metric("Accuracy", f"{bilstm_acc:.3f}", border_color="red")
+                    st.metric("Macro F1", f"{bilstm_macro_f1:.3f}", border_color="red")
            
             st.session_state.current_index = index + 1
 
